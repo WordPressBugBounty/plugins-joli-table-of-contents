@@ -3,8 +3,8 @@ Contributors: wpjoli
 Donate link: 
 Tags: table of contents,toc,navigation,table,contents
 Requires at least: 5.0
-Tested up to: 6.6.2
-Stable tag: 2.4.0
+Tested up to: 6.7.1
+Stable tag: 2.6.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -305,8 +305,22 @@ In order to change the color, go to the Settings, then under the Appearance tab,
 
 == Changelog ==
 
+= 2.6.0 =
+* WP 6.7.1 compatibility
+* Added Auto-scroll feature for Sticky TOC & Slide-out TOP [PRO]
+* Fixed PHP notice for load_plugin_textdomain
+* Fixed Slide-out link click bug [PRO]
+* Improved javascript performance
+
+= 2.5.0 =
+* WP 6.7 compatibility
+* Fixed Slide-out toggle not showing on iOS Safari [PRO]
+* Added Slide-out Top and Bottom custom content boxes [PRO]
+* Added Action hook joli_toc_slide_out_box_top to add custom content to the Slide-out Top box [PRO]
+* Added Action hook joli_toc_slide_out_box_bottom to add custom content to the Slide-out Bottom box [PRO]
+
 = 2.4.0 =
-* WP 6.2.2 compatibility
+* WP 6.6.2 compatibility
 * Added Bullet points option
 
 = 2.3.1 =

@@ -824,6 +824,25 @@ return [
                         'default' => '0|px',
                         'sanitize' => 'unit',
                     ],
+
+                    [
+                        'id' => 'sticky-toc-auto-scroll',
+                        'title' => __('Auto-scroll to active heading', 'joli-table-of-contents'),
+                        'type' => 'switch',
+                        'args' => [
+                            'new' => true,
+                            'pro' => true,
+                            'desc' => __('When the TOC overflows the viewport, it will autoscroll to the active heading as the user scrolls the page.', 'joli-table-of-contents'),
+                            // 'class' => 'tab-general'
+                            // 'custom' => jtoc_tagify(
+                            //     'p',
+                            //     __('This option only works in Desktop mode and when the table of contents is placed inside a ', 'joli-table-of-contents') . sprintf('<a href="%s">', admin_url('widgets.php')) . __('sidebar widget.', 'joli-table-of-contents') . '</a>',
+                            //     ['class' => ['description']]
+                            // ),
+                        ],
+                        'default' => 0,
+                        'sanitize' => 'checkbox',
+                    ],
                 ],
             ],
         ],
@@ -3020,6 +3039,19 @@ return [
                 'name' => 'slide-out-table-of-contents-settings',
                 'title' => __('Slide-out table of contents settings', 'joli-table-of-contents'),
                 'fields' => [
+
+                    [
+                        'id' => 'slide-out-auto-scroll',
+                        'title' => __('Auto-scroll to active heading', 'joli-table-of-contents'),
+                        'type' => 'switch',
+                        'args' => [
+                            'new' => true,
+                            'pro' => true,
+                            'desc' => __('When the TOC overflows the viewport, it will autoscroll to the active heading as the user scrolls the page.', 'joli-table-of-contents'),
+                        ],
+                        'default' => 0,
+                        'sanitize' => 'checkbox',
+                    ],
 
                     [
                         'id' => 'slide-out-display',
