@@ -4,7 +4,7 @@ Donate link:
 Tags: table of contents,toc,navigation,table,contents
 Requires at least: 5.0
 Tested up to: 6.7.1
-Stable tag: 2.6.0
+Stable tag: 2.6.1
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -304,6 +304,10 @@ In order to change the color, go to the Settings, then under the Appearance tab,
 14. Settings page - PROGRESS BAR
 
 == Changelog ==
+
+= 2.6.1 =
+* Added After first H2 tag auto-insert option
+* Bug fix
 
 = 2.6.0 =
 * WP 6.7.1 compatibility

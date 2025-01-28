@@ -151,6 +151,13 @@ class PublicAppController {
                     );
                 case 'before-h2-1':
                     return $this->insertIntoHTML( $processed['content'], $rendered_toc, 'h2' );
+                case 'after-h2-1':
+                    return $this->insertIntoHTML(
+                        $processed['content'],
+                        $rendered_toc,
+                        'h2',
+                        true
+                    );
                 case 'after-p-1':
                     return $this->insertIntoHTML(
                         $processed['content'],

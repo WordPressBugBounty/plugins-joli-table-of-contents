@@ -1048,6 +1048,7 @@ return [
                                 'before-h1' => __('Before H1', 'joli-table-of-contents'),
                                 'after-h1' => __('After H1', 'joli-table-of-contents'),
                                 'before-h2-1' => __('Before first H2 tag', 'joli-table-of-contents'),
+                                'after-h2-1' => __('After first H2 tag', 'joli-table-of-contents'),
                                 'after-p-1' => __('After first paragraph', 'joli-table-of-contents'),
                                 'before-img-1' => __('Before first image', 'joli-table-of-contents'),
                                 'after-img-1' => __('After first image', 'joli-table-of-contents'),
