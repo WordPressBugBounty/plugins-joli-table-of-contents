@@ -363,6 +363,48 @@ return [
                     ],
 
                     [
+                        'id' => 'use-toc-title-icon',
+                        'title' => __('Use title icon', 'joli-table-of-contents'),
+                        'type' => 'switch',
+                        'args' => [
+                            'desc' => __('Show an icon before the table of contents title', 'joli-table-of-contents'),
+                            // 'class' => 'tab-general'
+                            'custom' => JTOC()->render(['admin' => 'toc-title-icon'], [], true),
+                            'children' => [
+                                'toc-title-icon',
+                            ],
+                        ],
+                        'default' => 0,
+                        'sanitize' => 'checkbox',
+                    ],
+
+                    [
+                        'id' => 'toc-title-icon',
+                        'title' => __('Title icon', 'joli-table-of-contents'),
+                        'type' => 'lucideicon',
+                        'default' => [
+                            'icon' => 'book-text',
+                            'stroke_width' => 2,
+                            'size' => 20,
+                            'color' => null,
+                        ],
+                        'args' => [
+                            'new' => true,
+                            'pro_partial' => true,
+                            'styles' => ':root{--toc_title_icon-stroke-width: 1px;}',
+                            'desc' => __('Select an icon that will be shown next to the TOC Title. Adjust the size, stroke width and color.', 'joli-table-of-contents'),
+                            'path' => 'assets/public/icons',
+                        ],
+                        'sanitize' => 'lucideicon',
+                        'sanitize_args' => [
+                            'icon' => 'string',
+                            'stroke_width' => 'float',
+                            'size' => 'integer',
+                            'color' => 'color',
+                        ],
+                    ],
+
+                    [
                         'id' => 'header-as-toggle',
                         'title' => __('Header as toggle', 'joli-table-of-contents'),
                         'type' => 'switch',

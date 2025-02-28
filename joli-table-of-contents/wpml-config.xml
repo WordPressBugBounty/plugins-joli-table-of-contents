@@ -1,0 +1,7 @@
+<wpml-config>
+  <admin-texts>
+    <key name="joli_table_of_contents_settings">
+      <key name="toc_title"/>
+    </key>
+  </admin-texts>
+</wpml-config>

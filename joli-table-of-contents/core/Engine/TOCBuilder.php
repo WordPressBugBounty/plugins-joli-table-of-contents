@@ -5,6 +5,7 @@
  */
 namespace WPJoli\JoliTOC\Engine;
 
+use WPJoli\JoliTOC\Application;
 use WPJoli\JoliTOC\Engine\ContentProcessing;
 use WPJoli\JoliTOC\Controllers\SettingsController;
 use WPJoli\JoliTOC\Controllers\PostTypeSettingController;
@@ -243,9 +244,17 @@ class TOCBuilder {
         // Processes the TOC inner after the theme is loaded to make sure the custom hooks will work
         $output = $this->renderTOC( $_headings, true );
         $return_args = [];
+        //WPML
+        if ( class_exists( 'Sitepress' ) ) {
+            $jtoc_options = get_option( Application::SETTINGS_V2_SLUG );
+            $tr_title = apply_filters( 'joli_toc_toc_title', $jtoc_options['toc_title'] );
+        } else {
+            $tr_title = apply_filters( 'joli_toc_toc_title', $options['toc_title'] );
+        }
         $data = [
-            'title'                      => apply_filters( 'joli_toc_toc_title', $options['toc_title'] ),
+            'title'                      => $tr_title,
             'show_header'                => $options['show_header'],
+            'title_icon'                 => apply_filters( 'joli_toc_title_icon', $this->getTitleIcon() ),
             'show_toggle'                => (bool) $options['show_toggle'],
             'preserve_theme_styles'      => (bool) $options['preserve_theme_styles'],
             'toggle_type'                => $options['toggle_type'],
@@ -298,6 +307,36 @@ class TOCBuilder {
             // $output .= sprintf('%s: %s !important;', $prop, $value) . "\n";
         }
         return $output;
+    }
+
+    private function getTitleIcon() {
+        $options = $this->options;
+        //Adds numeration option only if numeration is set
+        $option_master = (bool) $options['use_toc_title_icon'];
+        if ( jtoc_isset_or_null( $option_master ) !== null && $option_master === true ) {
+            //Toggle color
+            $option = $options['toc_title_icon'];
+            if ( jtoc_isset_or_null( $option ) ) {
+                $icon = $option['icon'];
+                $size = $option['size'];
+                $stroke_width = $option['stroke_width'];
+                $color = $option['color'];
+                $file = JTOC()->path( 'assets/public/icons/' . $icon . '.svg' );
+                if ( file_exists( $file ) ) {
+                    $svg = file_get_contents( $file );
+                    $style = 'width: ' . $size . 'px; height: ' . $size . 'px; stroke-width: ' . $stroke_width . 'px;';
+                    if ( $color ) {
+                        $style .= 'stroke: ' . $color . ';';
+                    }
+                    // Sanitize SVG
+                    $svg = wp_kses( $svg, jtoc_kses_lucide_svg() );
+                    $svg = str_replace( '<svg', '<svg style="' . $style . '"', $svg );
+                    // return wp_kses($svg, jtoc_kses_lucide_svg());
+                    return $svg;
+                }
+            }
+        }
+        return false;
     }
 
     private function getTOCStyles() {

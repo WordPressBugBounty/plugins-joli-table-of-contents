@@ -1,26 +1,23 @@
 === Joli Table Of Contents ===
 Contributors: wpjoli
 Donate link: 
-Tags: table of contents,toc,navigation,table,contents
+Tags: table of contents,toc,navigation,table of content,page contents
 Requires at least: 5.0
-Tested up to: 6.7.1
-Stable tag: 2.6.1
+Tested up to: 6.7.2
+Stable tag: 2.7.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-User-friendly Table of Contents. Gutenberg Block. Fast & Highly customizable. Auto or manual insert.
+The Best Table of Contents Plugin for WordPress. User-friendly. Gutenberg Block. Fast & Highly customizable. Auto or manual insert.
 
 == Description ==
 
-A user-friendly Table of Contents plugin for your posts, pages and custom post types. Designed with Performance and Customization in mind, it provides a plethora of options for you to blend it smoothly with your website's unique style.
+Joli Table Of Contents is the best table of contents plugin for WordPress. It is user-friendly and highly customizable, designed with performance in mind, it offers a seamless experience for both users and developers. With features like Gutenberg block support, auto-insert options, and multilingual compatibility, it's the perfect solution for enhancing your website's navigation.
+
+[Documentation](https://wpjoli.com/docs/joli-table-of-contents/"Documentation for Joli Table Of Contents")
 
 https://www.youtube.com/watch?v=TXfJ4SnsNUA
-
-= ⭐ CHECK OUR OTHER PLUGINS =
-* [Smart Auto Featured Image](https://wordpress.org/plugins/smart-auto-featured-image/)
-* [Joli FAQ SEO](https://wordpress.org/plugins/joli-faq-seo/)
-* [Joli CLEAR Lightbox](https://wordpress.org/plugins/joli-clear-lightbox/)
 
 ## ⭐HIGHLIGHTS
 ### 🆕 GUTENBERG BLOCK
@@ -87,6 +84,7 @@ Use the table of contents in a sidebar widget and have it sticky as the page get
 
 ## 📃 Main Features
 
+* TOC Title icon (since v2.7.0).
 * Customizable Bullet points (since v2.4.0).
 * Page break `<!--nextpage-->` support (since v2.3.0).
 * Auto-insert table of contents (select post types and position in the content).
@@ -164,6 +162,13 @@ Use the following shortcode within your content to have the table of contents di
 
     [joli-toc]
 
+If you were using a different TOC plugin, you can use a different shortcode so that you don't need to update all of your content:
+
+    [toc]
+
+    // Add this code to your theme's functions.php
+    add_filter('jolitoc_shortcode_tag', function(){ return 'toc';});
+
 ### 🎣 Hooks
 
 You can use any of the hooks provided to add custom content to the actual Table Of Contents.
@@ -209,6 +214,12 @@ Customizes the title (collapse).
 
         return $title;
     }
+
+= ⭐ CHECK OUR OTHER PLUGINS =
+* [Smart Auto Featured Image](https://wordpress.org/plugins/smart-auto-featured-image/)
+* [Joli FAQ SEO](https://wordpress.org/plugins/joli-faq-seo/)
+* [Joli CLEAR Lightbox](https://wordpress.org/plugins/joli-clear-lightbox/)
+
 
 == Installation ==
 
@@ -288,22 +299,31 @@ In order to change the color, go to the Settings, then under the Appearance tab,
 
 == Screenshots ==
 
-1. Joli Table of contents Block
-2. Block being edited
-3. Heading being edited in the block
-4. Front-end view with modifications from the block
-5. Free Themes overview
-6. Settings page - GENERAL
-7. Settings page - HEADINGS
-8. Settings page - AUTO-INSERT
-9. Settings page - WIDGET SUPPORT
-10. Settings page - THEME
-11. Settings page - STYLES
-12. Settings page - FLOATING TABLE OF CONTENTS
-13. Settings page - SLIDE-OUT TABLE OF CONTENTS
-14. Settings page - PROGRESS BAR
+1. Unlimited design possibilities
+2. Joli Table of contents Block
+3. Block being edited
+4. Heading being edited in the block
+5. Front-end view with modifications from the block
+6. Free Themes overview
+7. Settings page - GENERAL
+8. Settings page - HEADINGS
+9. Settings page - AUTO-INSERT
+10. Settings page - WIDGET SUPPORT
+11. Settings page - THEME
+12. Settings page - STYLES
+13. Settings page - FLOATING TABLE OF CONTENTS
+14. Settings page - SLIDE-OUT TABLE OF CONTENTS
+15. Settings page - PROGRESS BAR
 
 == Changelog ==
+
+= 2.7.0 =
+* WP 6.7.2 compatibility
+* Added Title icon feature
+* Added filter hook: joli_toc_title_icon
+* Added official WPML support for TOC Title translation (the use of the joli_toc_toc_title hook is now deprecated for translations)
+* Added --jtoc-title-wrap-color CSS variable. This variable will default to --jtoc-title-color if unset
+* Added --jtoc-title-icon-size CSS variable.
 
 = 2.6.1 =
 * Added After first H2 tag auto-insert option

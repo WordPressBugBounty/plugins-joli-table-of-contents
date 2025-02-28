@@ -89,6 +89,36 @@ class SettingsCallbacks {
         return $input;
     }
 
+    public function sanitizeLucideicon( $input, $args ) {
+        if ( !$args ) {
+            return null;
+        }
+        $icon = jtoc_isset_or_null( $input['icon'] );
+        if ( !$icon ) {
+            return null;
+        }
+        foreach ( $input as $key => $value ) {
+            $type_compare = jtoc_isset_or_null( $args[$key] );
+            if ( $type_compare == 'color' ) {
+                //Allow empty string for color
+                if ( $value === '' ) {
+                    continue;
+                } else {
+                    $pass = $this->sanitizeColor( $value );
+                }
+                // JTOC()->log($pass);
+                if ( !$pass ) {
+                    return null;
+                }
+            } else {
+                if ( settype( $value, $type_compare ) === false ) {
+                    return null;
+                }
+            }
+        }
+        return $input;
+    }
+
     private function doTemplate( $template, $data = [] ) {
         return str_replace( array_map( 'jtoc_mustache_key', array_keys( $data ) ), array_values( $data ), $template );
     }
@@ -445,6 +475,119 @@ class SettingsCallbacks {
                 </label>';
             $output .= $this->doTemplate( $template, $tpl_data );
         }
+        $output .= '</div>';
+        return $output;
+        return $this->doTemplate( $template, $data );
+    }
+
+    private function processLucideicon( $args, $data ) {
+        if ( !isset( $args['path'] ) ) {
+            return false;
+        }
+        $icons_path = JTOC()->path( $args['path'] );
+        if ( !is_dir( $icons_path ) ) {
+            return false;
+        }
+        $files = scandir( $icons_path );
+        if ( !count( $files ) > 0 ) {
+            return false;
+        }
+        $icons = [];
+        foreach ( $files as $file ) {
+            if ( $file == '.' || $file == '..' ) {
+                continue;
+            }
+            $filename = pathinfo( $file );
+            if ( $filename['extension'] != 'svg' ) {
+                continue;
+            }
+            $id = $filename['filename'];
+            // $icon_path = $icons_path . '/' . $file;
+            // $icon_url = JTOC()->url($args['path'] . '/' . $file);
+            // $icon = [
+            //     'id' => $id,
+            //     'path' => $icon_path,
+            //     'url' => $icon_url
+            // ];
+            //Adds the current theme to the csutom themes array
+            // $icons[] = $icon;
+            $icons[] = $id;
+        }
+        $checked = ( isset( $data['value'] ) ? ( $data['value'] == 1 ? true : false ) : false );
+        // var_dump($checked);
+        // $items = $args['values'];
+        $items_pro = ( isset( $args['values_pro'] ) ? $args['values_pro'] : [] );
+        $output = sprintf( '<div id="%s" class="%s">', $data['option'], $data['classes'] );
+        $options_html = '';
+        $selected_icon = '';
+        foreach ( $icons as $id ) {
+            $is_pro = ( in_array( $id, $items_pro ) ? true : false );
+            $pro_suffix = ( $is_pro ? '-disabled' : '' );
+            $tpl_data = [
+                'id'        => $data['name'] . $id,
+                'name'      => $data['name'] . $pro_suffix,
+                'value'     => $id,
+                'checked'   => ( $id == $data['value']['icon'] ? ' checked' : '' ),
+                'label'     => $id,
+                'disabled'  => ( $is_pro ? ' disabled' : '' ),
+                'pro_class' => ( $is_pro ? ' joli-pro' : '' ),
+                'icon_url'  => JTOC()->url( $args['path'] . '/' . $id . '.svg' ),
+                'icon_svg'  => file_get_contents( JTOC()->path( $args['path'] . '/' . $id . '.svg' ) ),
+            ];
+            if ( $id == $data['value']['icon'] ) {
+                $selected_icon = $tpl_data['icon_svg'];
+            }
+            $template = <<<HTML
+<label class="joli-radio-icon{{pro_class}}" for="radio_{{id}}" data-icon-src="{{icon_url}}">
+    <input type="radio" id="radio_{{id}}" name="{{name}}[icon]" class="joli-radio{{pro_class}}" value="{{value}}"{{checked}}{{disabled}}>
+    <div class="joli-lucide-icon">
+        {{icon_svg}}
+    </div>
+</label>
+HTML
+;
+            $options_html .= $this->doTemplate( $template, $tpl_data );
+        }
+        $component_data = [
+            'data'          => $data,
+            'args'          => $args,
+            'options'       => $options_html,
+            'selected_icon' => $selected_icon,
+        ];
+        $output .= JTOC()->render( [
+            'admin/components' => 'lucide-picker',
+        ], $component_data, true );
+        $output .= '</div>';
+        return $output;
+        return $this->doTemplate( $template, $data );
+    }
+
+    private function processImagepicker( $args, $data ) {
+        // pre($args);
+        // pre('$data');
+        // pre($data);
+        // var_dump($data['value']);
+        $checked = ( isset( $data['value'] ) ? ( $data['value'] == 1 ? true : false ) : false );
+        // var_dump($checked);
+        // $items = $args['values'];
+        $items_pro = ( isset( $args['values_pro'] ) ? $args['values_pro'] : [] );
+        $output = sprintf( '<div class="%s">', $data['classes'] );
+        //
+        $styles = jtoc_isset_or_null( $args['styles'] );
+        if ( $styles ) {
+            $output .= '<style>' . $styles . '</style>';
+        }
+        // foreach ($items as $id => $name) {
+        $is_pro = false;
+        // $pro_suffix = $is_pro ? '-disabled' : '';
+        $tpl_data = [
+            'pro_class' => ( $is_pro ? ' joli-pro' : '' ),
+        ];
+        $template = '<button class="joli-image-picker{{pro_class}}" type="button">
+                    <div class="joli-html-label">Select an image</div>
+                </button>';
+        $output .= $this->doTemplate( $template, $tpl_data );
+        // }
         $output .= '</div>';
         return $output;
         return $this->doTemplate( $template, $data );

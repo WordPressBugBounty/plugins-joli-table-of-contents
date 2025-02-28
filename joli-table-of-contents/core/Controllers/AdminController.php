@@ -37,6 +37,7 @@ class AdminController {
                 'ajaxUrl' => admin_url( 'admin-ajax.php' ),
                 'nonce'   => wp_create_nonce( $jtoc::SLUG ),
             ] );
+            wp_enqueue_media();
             wp_enqueue_style( 'wp-color-picker' );
             wp_enqueue_script(
                 'wpjoli-joli-toc-admin-wp-color-picker-alpha',
