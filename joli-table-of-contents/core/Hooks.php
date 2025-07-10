@@ -49,6 +49,7 @@ class Hooks {
         $this->admin = $app->requestService( AdminController::class );
         $this->menu = $app->requestService( MenuController::class );
         $this->public_app = $app->requestService( PublicAppController::class );
+        //Move the constructor to the init hook and rename the contructor "init"
         $this->settings = $app->requestService( SettingsController::class );
         $this->shortcodes = $app->requestService( ShortcodesController::class );
         $this->pt_setting = $app->requestService( PostTypeSettingController::class );
@@ -71,36 +72,71 @@ class Hooks {
     }
 
     private function registerAdminHooks() {
-        // add_action( 'init',                                 [ $this->notices,           'initNotices' ] );
-        add_action( 'wp_ajax_joli_toc_handle_v2_notice', [$this->notices, 'jtocHandleV2Notice'] );
-        //actions
+        // === EARLY HOOKS ===
+        // init: fires early, before most admin things are loaded
+        add_action( 'init', [$this->settings, 'initialize'], 10 );
+        add_action( 'init', [$this->settings, 'handleResetSettings'] );
         if ( jtoc_xy()->is_free_plan() ) {
             add_action( 'init', [$this->notices_free, 'initNotices'] );
-            add_action( 'wp_ajax_joli_toc_handle_notice', [$this->notices_free, 'jtocHandleNotice'] );
         }
-        add_action( 'wp_ajax_joli_toc_update_active_post_type_setting', [$this->pt_setting, 'updatePostTypeSetting'] );
-        // add_action('wp_ajax_joli_toc_save_user_settings',               [$this->settings, 'saveUserSetting']);
-        add_action( 'wp_ajax_joli_toc_export_user_settings', [$this->settings, 'exportUserSetting'] );
-        add_action( 'wp_ajax_joli_toc_import_user_settings', [$this->settings, 'importUserSetting'] );
-        add_action( 'init', [$this->settings, 'handleResetSettings'] );
-        // add_action( 'plugins_loaded',                       [ $this->app,           'registerLanguages' ] );
-        add_action( 'admin_enqueue_scripts', [$this->admin, 'enqueueAssets'] );
-        add_action( 'admin_menu', [$this->menu, 'addAdminMenu'] );
-        add_action( 'admin_init', [$this->settings, 'registerSettings'] );
-        //Registers the block for WP version above 5.0
         if ( version_compare( $GLOBALS['wp_version'], '5.0', '>=' ) ) {
             add_action( 'init', [$this->blocks, 'registerBlocks'] );
         }
-        //filters
+        add_action( 'init', [$this->notices, 'initNotices'], 20 );
+        // === PLUGIN ADMIN HOOKS ===
         add_filter( 'plugin_action_links_' . plugin_basename( JTOC()->path( 'joli-table-of-contents.php' ) ), [$this->admin, 'addSettingsLink'] );
-        /**
-         * Since 2.0.0
-         */
-        // add_filter('init',                                      [$this->dsp, 'registerMetas']);
-        // add_filter('enqueue_block_editor_assets',               [$this->dsp, 'enqueueAssets']);
+        add_action( 'admin_init', [$this->settings, 'registerSettings'] );
+        add_action( 'admin_menu', [$this->menu, 'addAdminMenu'] );
+        add_action( 'admin_enqueue_scripts', [$this->admin, 'enqueueAssets'] );
+        // === AJAX HOOKS ===
+        add_action( 'wp_ajax_joli_toc_handle_v2_notice', [$this->notices, 'jtocHandleNotice'] );
+        if ( jtoc_xy()->is_free_plan() ) {
+            add_action( 'wp_ajax_joli_toc_handle_notice', [$this->notices_free, 'jtocHandleNotice'] );
+        }
+        add_action( 'wp_ajax_joli_toc_update_active_post_type_setting', [$this->pt_setting, 'updatePostTypeSetting'] );
+        // add_action('wp_ajax_joli_toc_save_user_settings', [$this->settings, 'saveUserSetting']);
+        add_action( 'wp_ajax_joli_toc_export_user_settings', [$this->settings, 'exportUserSetting'] );
+        add_action( 'wp_ajax_joli_toc_import_user_settings', [$this->settings, 'importUserSetting'] );
+        // === REST API HOOKS ===
         add_action( 'rest_api_init', [$this->rest, 'registerRestRoutes'] );
     }
 
+    // private function registerAdminHooks()
+    // {
+    //     add_action('init',                                 [$this->notices, 'initNotices']);
+    //     add_action('wp_ajax_joli_toc_handle_v2_notice',    [$this->notices, 'jtocHandleV2Notice']);
+    //     //actions
+    //     if (jtoc_xy()->is_free_plan()) {
+    //         add_action('init',                                         [$this->notices_free, 'initNotices']);
+    //         add_action('wp_ajax_joli_toc_handle_notice',               [$this->notices_free, 'jtocHandleNotice']);
+    //     }
+    //     add_action('wp_ajax_joli_toc_update_active_post_type_setting', [$this->pt_setting, 'updatePostTypeSetting']);
+    //     // add_action('wp_ajax_joli_toc_save_user_settings',               [$this->settings, 'saveUserSetting']);
+    //     add_action('wp_ajax_joli_toc_export_user_settings',            [$this->settings, 'exportUserSetting']);
+    //     add_action('wp_ajax_joli_toc_import_user_settings',            [$this->settings, 'importUserSetting']);
+    //     add_action('init',                                             [$this->settings, 'init']);
+    //     add_action('init',                                             [$this->settings, 'handleResetSettings']);
+    //     // add_action( 'plugins_loaded',                       [ $this->app,           'registerLanguages' ] );
+    //     add_action('admin_enqueue_scripts',                [$this->admin, 'enqueueAssets']);
+    //     add_action('admin_init',                           [$this->settings, 'registerSettings']);
+    //     add_action('admin_menu',                           [$this->menu, 'addAdminMenu']);
+    //     //Registers the block for WP version above 5.0
+    //     if (version_compare($GLOBALS['wp_version'], '5.0', '>=')) {
+    //         add_action('init',                      [$this->blocks,    'registerBlocks']);
+    //     }
+    //     //filters
+    //     add_filter('plugin_action_links_' . plugin_basename(JTOC()->path('joli-table-of-contents.php')), [$this->admin,    'addSettingsLink']);
+    //     if (jtoc_xy()->can_use_premium_code__premium_only()) {
+    //         add_action('add_meta_boxes',                       [$this->admin, 'registerJoliMetaBox__premium_only']);
+    //         add_action('save_post',                            [$this->admin, 'saveJoliMetaBox__premium_only'], 10, 2);
+    //     }
+    //     /**
+    //      * Since 2.0.0
+    //      */
+    //     // add_filter('init',                                      [$this->dsp, 'registerMetas']);
+    //     // add_filter('enqueue_block_editor_assets',               [$this->dsp, 'enqueueAssets']);
+    //     add_action('rest_api_init',             [$this->rest,          'registerRestRoutes']);
+    // }
     private function registerPublicHooks() {
         //only for front end, avoid interferences with the editor
         if ( jtoc_is_front() ) {

@@ -19,53 +19,55 @@ class Log
     const INFO = 'info';
     const NOTICE = 'notice';
     const WARNING = 'warning';
-    
+
     protected $file;
     protected $log;
     protected $app;
 
-    public function __construct( Application $app )
+    public function __construct(Application $app)
     {
         $this->app = $app;
-        $this->file = $this->app->path( 'joli-toc.log' );
+        $this->file = $this->app->path('joli-toc.log');
     }
 
-    public function log( $message, $level = 'info', $logfile = null )
+    public function log($message, $level = 'info', $logfile = null)
     {
-        $entry = $this->buildLogEntry( $level, $message );
-        
+        $entry = $this->buildLogEntry($level, $message);
+
         $log = $this->file; //default log
-    
-        file_put_contents( $log, $entry, FILE_APPEND | LOCK_EX );
+
+        file_put_contents($log, $entry, FILE_APPEND | LOCK_EX);
     }
 
-    public function slog( $message, $level = 'info', $logfile = null )
+    public function slog($message, $level = 'info', $logfile = null)
     {
-        $entry = $this->buildLogEntryNoBt( $level, $message );
-        
+        $entry = $this->buildLogEntryNoBt($level, $message);
+
         $log = $this->file; //default log
-    
-        file_put_contents( $log, $entry, FILE_APPEND | LOCK_EX );
+
+        file_put_contents($log, $entry, FILE_APPEND | LOCK_EX);
     }
 
-    protected function buildLogEntry( $level, $message )
+    protected function buildLogEntry($level, $message)
     {
         $backtrace = $this->getBacktrace();
-        return sprintf( '[%s|%s] %s: %s' . PHP_EOL,
-                current_time( 'mysql' ),
-                substr($backtrace, strpos($backtrace, Application::ID)),
-                strtoupper( $level ),
-                $message
+        return sprintf(
+            '[%s|%s] %s: %s' . PHP_EOL,
+            current_time('mysql'),
+            substr($backtrace, strpos($backtrace, Application::ID)),
+            strtoupper($level),
+            $message
         );
     }
 
-    protected function buildLogEntryNoBt( $level, $message )
+    protected function buildLogEntryNoBt($level, $message)
     {
         $backtrace = $this->getBacktrace();
-        return sprintf( '[%s] %s: %s' . PHP_EOL,
-                current_time( 'mysql' ),
-                strtoupper( $level ),
-                $message
+        return sprintf(
+            '[%s] %s: %s' . PHP_EOL,
+            current_time('mysql'),
+            strtoupper($level),
+            $message
         );
     }
 
@@ -75,12 +77,12 @@ class Log
     protected function getBacktrace()
     {
         $e = new \Exception;
-        $backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 4 );
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4);
         // $stack = $e->getTraceAsString();
-        $entry = array_pop( $backtrace );
-        $path = str_replace( [ $this->app->path( 'plugin/' ), $this->app->path() ], '', $entry[ 'file' ] );
+        $entry = array_pop($backtrace);
+        
+        $path = str_replace(realpath($this->app->path()), '', realpath($entry['file']));
         // return $stack . ':' . $entry[ 'line' ];
-        return $path . ':' . $entry[ 'line' ];
+        return $path . ':' . $entry['line'];
     }
-
 }

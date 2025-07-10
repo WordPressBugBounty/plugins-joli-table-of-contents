@@ -12,7 +12,7 @@ class Application extends JoliApplication
     const NAME = 'Joli TOC';
     const SLUG = 'joli_toc';
     const WP_ORG_SLUG = 'joli-table-of-contents';
-    const VERSION = '2.7.0';
+    const VERSION = '2.8.0';
     const SETTINGS_SLUG = 'joli_toc_settings';
     const SETTINGS_V2_SLUG = 'joli_table_of_contents_settings';
     const DOMAIN = 'joli-toc';

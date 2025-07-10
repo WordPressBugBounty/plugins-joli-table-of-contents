@@ -6,7 +6,7 @@
 
 namespace WPJoli\JoliTOC\Controllers;
 
-use WPJoli\JoliTOC\Application;
+// use WPJoli\JoliTOC\Application;
 
 class DocumentSettingPanel
 {

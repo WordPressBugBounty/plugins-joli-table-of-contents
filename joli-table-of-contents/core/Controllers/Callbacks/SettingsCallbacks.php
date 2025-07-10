@@ -54,7 +54,7 @@ class SettingsCallbacks {
     }
 
     public function sanitizeUnit( $input ) {
-        $value = $input;
+        $value = (string) $input;
         if ( substr_count( $value, '|' ) > 1 ) {
             return null;
         }
@@ -234,7 +234,6 @@ class SettingsCallbacks {
     }
 
     private function processTextarea( $args, $data ) {
-        // pre($data);
         $ta_size = 'cols="100" rows="12"';
         if ( isset( $args['textarea-size'] ) ) {
             switch ( $args['textarea-size'] ) {
@@ -247,14 +246,15 @@ class SettingsCallbacks {
         $is_global = $data['is_global'];
         $disabled = $active_post_type && $is_global;
         return sprintf(
-            '<textarea class="%s" id="%s" name="%s" %s placeholder="%s"%s>%s</textarea><br>',
+            '<textarea class="%s" id="%s" name="%s" %s placeholder="%s"%s%s>%s</textarea><br>',
             $data['classes'],
             $data['name'],
             $data['name'],
             $ta_size,
             $data['placeholder'],
             ( $args['pro'] || $disabled ? ' disabled' : '' ),
-            esc_textarea( $data['value'] )
+            ( jtoc_isset_or_null( $args['style'] ) ? ' style="' . jtoc_cssify( $args['style'] ) . '"' : '' ),
+            esc_textarea( jtoc_isset_or_null( $data['value'], true ) )
         );
     }
 
@@ -302,6 +302,9 @@ class SettingsCallbacks {
 
     private function processSwitch( $args, $data ) {
         $checked = ( isset( $data['value'] ) ? ( $data['value'] == 1 ? true : false ) : false );
+        $active_post_type = $data['active_post_type'];
+        $is_global = $data['is_global'];
+        $disabled = $active_post_type && $is_global;
         // pre($args);
         $tpl_data = [
             'classes'           => $data['classes'],
@@ -309,7 +312,7 @@ class SettingsCallbacks {
             'checked'           => ( $checked ? ' checked' : '' ),
             'checked_value'     => ( $checked ? 1 : 0 ),
             'linkedfield'       => $data['option'],
-            'disabled'          => ( $args['pro'] ? ' disabled' : '' ),
+            'disabled'          => ( $args['pro'] || $disabled ? ' disabled' : '' ),
             'pro_class'         => ( $args['pro'] ? ' joli-pro' : '' ),
             'deactivates'       => ( jtoc_isset_or_null( $args['deactivates'] ) ? implode( ',', $args['deactivates'] ) : '' ),
             'children'          => ( jtoc_isset_or_null( $args['children'] ) ? implode( ',', $args['children'] ) : '' ),

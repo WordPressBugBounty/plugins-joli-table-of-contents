@@ -887,6 +887,38 @@ return [
                     ],
                 ],
             ],
+            
+            // TOC Engine ----------
+            [
+                'name' => 'toc-engine',
+                'title' => __('TOC engine', 'joli-table-of-contents'),
+                'desc' => jtoc_tagify(
+                    'p',
+                    jtoc_tagify('strong', __('[since v2.8.0] ', 'joli-table-of-contents')) .
+                     __('The new TOC processing engine enhances efficiency and is PHP 8.2+ compatible. It should be enabled at all times, unless some issues are encountered.', 'joli-table-of-contents')),
+                'fields' => [
+
+                    [
+                        'id' => 'toc-engine-v2',
+                        'title' => __('Use v2 engine', 'joli-table-of-contents'),
+                        'type' => 'switch',
+                        'args' => [
+                            'is_global' => true,
+                            'new' => true,
+                            'desc' => __('The new processing engine increases efficiency and is PHP 8.2+ compatible.', 'joli-table-of-contents'),
+                            // 'class' => 'tab-general'
+                            'custom' => jtoc_tagify(
+                                'p',
+                                __('This should be activated by default, unless issues are encountered.', 'joli-table-of-contents'),
+                                ['class' => ['description', 'danger']]
+                            ),
+                        ],
+                        'default' => 0,
+                        'sanitize' => 'checkbox',
+                        'has_block_attr' => false,
+                    ],
+                ],
+            ],
         ],
     ],
     // END GROUP: General ********************************************************
@@ -899,7 +931,7 @@ return [
         'sections' => [
             // Headings processing ----------
             [
-            'name' => 'headings-processing',
+                'name' => 'headings-processing',
                 'title' => __('Headings processing', 'joli-table-of-contents'),
                 'fields' => [
                     [
@@ -977,7 +1009,7 @@ return [
                         'default' => true,
                         'sanitize' => 'checkbox'
                     ],
-                    
+
                     [
                         'id' => 'hash-format',
                         'title' => __('Hash format', 'joli-table-of-contents'),
@@ -2572,6 +2604,13 @@ return [
                             'desc' => __('Write your own CSS to override settings or customize to your liking.', 'joli-table-of-contents'),
                             'classes' => 'large-text',
                             // 'custom' => sprintf('<a href="%sadmin.php?page=joli_toc_user_guide#custom-css">', get_admin_url()) . __('What can I customize ?', 'joli-table-of-contents') . '</a>',
+                            'style' => [
+                                'font-family' => 'monospace',
+                                'color' => '#39383a',
+                                'font-size' => '12px',
+                                'padding-block' => '12px',
+                                'min-width' => '420px',
+                            ]
                         ],
                         'sanitize' => 'Textarea',
                         'has_block_attr' => false,

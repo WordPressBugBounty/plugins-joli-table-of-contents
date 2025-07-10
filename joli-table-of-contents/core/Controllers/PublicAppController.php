@@ -7,10 +7,11 @@ namespace WPJoli\JoliTOC\Controllers;
 
 use WPJoli\JoliTOC\Application;
 use WPJoli\JoliTOC\Engine\ContentProcessing;
-use DOMDocument;
+// use DOMDocument;
 use DOMXPath;
 use WPJoli\JoliTOC\Engine\TOCBuilder;
 use WPJoli\JoliTOC\Controllers\SettingsController;
+use WPJoli\JoliTOC\Engine\HTMLParser;
 class PublicAppController {
     // protected $isProcessing = false;
     protected $tocBuilder;
@@ -220,11 +221,15 @@ class PublicAppController {
         $after = false,
         $fallback = null
     ) {
-        $parsed_html = new DOMDocument('1.0', "UTF-8");
-        libxml_use_internal_errors( true );
-        @$parsed_html->loadHTML( mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' ) );
-        libxml_use_internal_errors( false );
-        if ( !$parsed_html ) {
+        // $parsed_html = new DOMDocument('1.0', "UTF-8");
+        // libxml_use_internal_errors(true);
+        // @$parsed_html->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        // libxml_use_internal_errors(false);
+        /** @var HTMLParser $parser */
+        $parser = Application::instance()->requestService( HTMLParser::class );
+        // $parser->setMode(2);
+        $parsed_html = $parser->parse( $html );
+        if ( $parsed_html === false ) {
             return $html;
         }
         $xhtml = new DOMXPath($parsed_html);
@@ -237,10 +242,12 @@ class PublicAppController {
         $tag_to_find = $tag_search[0];
         if ( $tag_to_find ) {
             // Creates a chunk of HTML portion
-            $toc = new DOMDocument();
+            // $toc = new DOMDocument();
             // @$toc->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
             libxml_use_internal_errors( true );
-            @$toc->loadHTML( '<html><body>' . mb_convert_encoding( $content, 'HTML-ENTITIES', 'UTF-8' ) . '</body></html>', LIBXML_HTML_NODEFDTD );
+            $toc = $parser->parse( $content );
+            // @$toc->loadHTML('<html><body>' . ($content) . '</body></html>', LIBXML_HTML_NODEFDTD);
+            // @$toc->loadHTML('<html><body>' . mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8') . '</body></html>', LIBXML_HTML_NODEFDTD);
             libxml_use_internal_errors( false );
             // $tag_text = new DOMText( $tag_to_find->textContent );
             if ( $after === false ) {
@@ -252,7 +259,8 @@ class PublicAppController {
                 // $inserted = $tag_to_find->outertext . $content;
             }
             // $output = $parsed_html->saveHTML();
-            $output = jtoc_save_html_no_wrapping( $parsed_html );
+            $output = $parser->getHTML( $parsed_html );
+            // $output = jtoc_save_html_no_wrapping($parsed_html);
             return $output;
         }
         //optional fallback if the required tag was not found

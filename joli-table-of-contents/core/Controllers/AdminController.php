@@ -15,20 +15,20 @@ class AdminController {
         if ( stripos( $hook_suffix, $jtoc::SLUG ) !== false || stripos( $hook_suffix, $jtoc::SETTINGS_V2_SLUG ) !== false ) {
             wp_enqueue_style(
                 'wpjoli-joli-toc-admin-styles',
-                JTOC()->url( 'assets/admin/css/joli-toc-admin.css', $jtoc::USE_MINIFIED_ASSETS ),
+                $jtoc->url( 'assets/admin/css/joli-toc-admin.css', $jtoc::USE_MINIFIED_ASSETS ),
                 [],
                 $jtoc::VERSION
             );
             wp_enqueue_style(
                 'wpjoli-joli-toc-public-styles',
-                JTOC()->url( 'assets/public/css/wpjoli-joli-table-of-contents.css', $jtoc::USE_MINIFIED_ASSETS ),
+                $jtoc->url( 'assets/public/css/wpjoli-joli-table-of-contents.css', $jtoc::USE_MINIFIED_ASSETS ),
                 [],
                 $jtoc::VERSION
             );
-            // wp_enqueue_style('wpjoli-joli-toc-admin-gg-icons', JTOC()->url('assets/public/css/' . jtoc_fs_file('gg-icons') . '.css', $jtoc::USE_MINIFIED_ASSETS), [], $jtoc::VERSION);
+            // wp_enqueue_style('wpjoli-joli-toc-admin-gg-icons', $jtoc->url('assets/public/css/' . jtoc_fs_file('gg-icons') . '.css', $jtoc::USE_MINIFIED_ASSETS), [], $jtoc::VERSION);
             wp_enqueue_script(
                 'wpjoli-joli-toc-admin-scripts',
-                JTOC()->url( 'assets/admin/js/joli-toc-admin.js', $jtoc::USE_MINIFIED_ASSETS ),
+                $jtoc->url( 'assets/admin/js/joli-toc-admin.js', $jtoc::USE_MINIFIED_ASSETS ),
                 ['jquery', 'wp-color-picker'],
                 $jtoc::VERSION,
                 true
@@ -41,7 +41,7 @@ class AdminController {
             wp_enqueue_style( 'wp-color-picker' );
             wp_enqueue_script(
                 'wpjoli-joli-toc-admin-wp-color-picker-alpha',
-                JTOC()->url( 'vendor/wp-color-picker-alpha/wp-color-picker-alpha.min.js' ),
+                $jtoc->url( 'vendor/wp-color-picker-alpha/wp-color-picker-alpha.min.js' ),
                 ['wp-color-picker'],
                 '3.0.2',
                 true
@@ -49,7 +49,7 @@ class AdminController {
         }
         wp_enqueue_script(
             'wpjoli-joli-toc-admin-notice-scripts',
-            JTOC()->url( 'assets/admin/js/joli-toc-admin-notices.js', $jtoc::USE_MINIFIED_ASSETS ),
+            $jtoc->url( 'assets/admin/js/joli-toc-admin-notices.js', $jtoc::USE_MINIFIED_ASSETS ),
             ['jquery'],
             $jtoc::VERSION,
             true

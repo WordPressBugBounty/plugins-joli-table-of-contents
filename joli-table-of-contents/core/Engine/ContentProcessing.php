@@ -10,8 +10,11 @@ use Cocur\Slugify\Slugify;
 use DOMDocument;
 use DOMXPath;
 use DOMElement;
-use Exception;
+// use Exception;
+use tidy;
+use WPJoli\JoliTOC\Application;
 use WPJoli\JoliTOC\Engine\TOCBuilder;
+use WPJoli\JoliTOC\Engine\HTMLParser;
 class ContentProcessing {
     /**
      * Reads the actual HTML content from a post and processes the titles
@@ -25,16 +28,19 @@ class ContentProcessing {
     public static function Process(
         $content,
         $headings_only = false,
-        TOCBuilder $toc_builder = null,
+        $toc_builder = null,
         $paged_content = null
     ) {
-        // JTOC()->log($paged_content);
-        // //Parses the content
-        $html = new DOMDocument('1.0', "UTF-8");
-        // @$html->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
-        libxml_use_internal_errors( true );
-        @$html->loadHTML( '<html><body>' . mb_convert_encoding( $content, 'HTML-ENTITIES', 'UTF-8' ) . '</body></html>', LIBXML_HTML_NODEFDTD );
-        libxml_use_internal_errors( false );
+        /** @var HTMLParser $parser */
+        $parser = Application::instance()->requestService( HTMLParser::class );
+        // $parser->setMode(2);
+        $html = $parser->parse( $content );
+        if ( $html === false ) {
+            return [
+                'content'  => $content,
+                'headings' => null,
+            ];
+        }
         $headings = [];
         if ( $html ) {
             //$depth_option = jtoc_get_option('title-depth', 'general');
@@ -197,7 +203,12 @@ class ContentProcessing {
                         }
                     }
                     // $output = $html->saveHTML();
-                    $output = jtoc_save_html_no_wrapping( $html );
+                    // $output = jtoc_save_html_no_wrapping($html);
+                    $output = $parser->getHTML( $html );
+                    // JTOC()->log(print_r([
+                    //     'content' => $output,
+                    //     'headings' => $headings,
+                    // ], true));
                     return [
                         'content'  => $output,
                         'headings' => $headings,
@@ -260,6 +271,78 @@ class ContentProcessing {
                 return strtolower( $name[0] );
             }
         }
+    }
+
+    /**
+     * Returns a cleaned up version of the given HTML string.
+     * When the `tidy` PHP extension is not available, the original HTML is returned.
+     *
+     * https://api.html-tidy.org/tidy/tidylib_api_5.0.0/quick_ref.html
+     * 
+     * The `tidy` extension is used to clean up the HTML.
+     * The following options are used:
+     * - `clean` is disabled, as it removes empty elements and we want to keep them.
+     * - `output-html` is enabled, so the output is in HTML format.
+     * - `show-body-only` is enabled, so the output will not include an empty `<title>` tag.
+     * - `wrap` is disabled, so the output will not be wrapped in a `<body>` tag.
+     * - `char-encoding`, `input-encoding`, and `output-encoding` are set to `'utf8'`.
+     * - `drop-empty-elements` is disabled, so empty elements will be kept.
+     *
+     * @param string $html The HTML string to be cleaned up.
+     * @return string The cleaned up HTML string.
+     */
+    private static function tidyHtml( $html ) {
+        if ( !extension_loaded( 'tidy' ) ) {
+            return $html;
+            // fallback
+        }
+        $config = [
+            'clean'               => false,
+            'output-html'         => true,
+            'show-body-only'      => false,
+            'wrap'                => 0,
+            'char-encoding'       => 'utf8',
+            'input-encoding'      => 'utf8',
+            'output-encoding'     => 'utf8',
+            'drop-empty-elements' => false,
+        ];
+        $tidy = new tidy();
+        $tidy->parseString( $html, $config, 'utf8' );
+        // $tidy->parseString('<body>' . $html . '</body>', $config, 'utf8');
+        $tidy->cleanRepair();
+        return (string) $tidy;
+    }
+
+    private static function preProcessHtml( $html ) {
+        return $html;
+        // CDATA
+        $html = self::processRegex( '/<!\\[CDATA\\[.*?\\]\\]>/suim', $html );
+        // <script> tags
+        $html = self::processRegex( '/<script.*?>.*?<\\/script>/suim', $html );
+        return $html;
+    }
+
+    private static function processRegex( $pattern, $content ) {
+        return preg_replace_callback( $pattern, function ( $matches ) {
+            return '<!-- wpjoli-jtoc-xdata ' . base64_encode( $matches[0] ) . ' -->';
+        }, $content );
+    }
+
+    private static function wrap_script_style_content_safely( $html, &$placeholders ) {
+        $pattern = '#<(?P<tag>script|style)(?P<attrs>[^>]*)>(?P<content>.*?)</(?P=tag)>#is';
+        $placeholders = [];
+        $index = 0;
+        return preg_replace_callback( $pattern, function ( $match ) use(&$placeholders, &$index) {
+            $tag = $match['tag'];
+            $attrs = $match['attrs'];
+            $content = $match['content'];
+            // Store original block for later reinsertion
+            $placeholder = "##__SAFE_BLOCK_{$index}__##";
+            $placeholders[$placeholder] = "<{$tag}{$attrs}>{$content}</{$tag}>";
+            $index++;
+            // Replace content with a harmless CDATA-wrapped placeholder that DOMDocument won't break
+            return "<{$tag}{$attrs}>/*{$placeholder}*/</{$tag}>";
+        }, $html );
     }
 
 }

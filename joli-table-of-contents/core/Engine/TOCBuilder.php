@@ -54,6 +54,7 @@ class TOCBuilder {
         // pre($is_post_type_activated);
         /** @var SettingsController $sc */
         $this->sc = JTOC()->requestService( SettingsController::class );
+        // $this->sc->init();
         $global_options = $this->sc->getOptions( false );
         //Get global user settings
         $option_fields = null;

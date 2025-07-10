@@ -17,14 +17,14 @@ class JoliApplication
     public function __construct()
     {
         static::$instance = $this;
-        
+
         // load_plugin_textdomain('joli-toc',false,
         //             trailingslashit(plugin_basename($this->path()) . '/languages')
         //         );
-        
+
         $this->log = new Log($this);
     }
-    
+
     /**
      * Singleton
      */
@@ -35,7 +35,7 @@ class JoliApplication
         }
         return self::$instance;
     }
-    
+
 
     /**
      * Request or creates a service
@@ -105,21 +105,21 @@ class JoliApplication
     {
         $requested_file_path = plugin_dir_path(dirname(__FILE__)) . ltrim(trim($file), '/');
         $requested_file_url = plugin_dir_url(dirname(__FILE__)) . ltrim(trim($file), '/');
-        
-        if ($min_first){
-            
+
+        if ($min_first) {
+
             $file = ltrim(trim($file), '/');
             $details =  explode('.', $file);
             $ext = end($details);
             $filename = substr($file, 0, strlen($file) - strlen($ext) - 1);
             $min_filename = $filename . '.min.' . $ext;
-            $min_filepath = plugin_dir_path(dirname(__FILE__)) . $min_filename; 
-            $min_fileurl = plugin_dir_url(dirname(__FILE__)) . $min_filename; 
+            $min_filepath = plugin_dir_path(dirname(__FILE__)) . $min_filename;
+            $min_fileurl = plugin_dir_url(dirname(__FILE__)) . $min_filename;
             // JTOC()->log($min_filepath);
             // JTOC()->log(file_exists($min_filepath));
-            if (file_exists($min_filepath)){
+            if (file_exists($min_filepath)) {
                 //If we are admin and both normal and minified coexist, we get the normal file
-                if (is_super_admin() && file_exists($requested_file_path)){
+                if (is_super_admin() && file_exists($requested_file_path)) {
                     return $requested_file_url;
                 }
 
@@ -136,11 +136,11 @@ class JoliApplication
 
         if (is_array($message) || is_object($message)) {
             $message = json_encode($message);
-        }else if (is_bool($message)){
+        } else if (is_bool($message)) {
             $message = $message ? 'TRUE' : 'FALSE';
-        }else if (!isset($message)){
+        } else if (!isset($message)) {
             $message = '-NOT SET-';
-        }else if (is_null($message)){
+        } else if (is_null($message)) {
             $message = '-NULL-';
         }
         $this->log->log('[' . $type . '] ' . $message, $level, $logfile);
@@ -152,13 +152,18 @@ class JoliApplication
 
         if (is_array($message) || is_object($message)) {
             $message = json_encode($message);
-        }else if (is_bool($message)){
+        } else if (is_bool($message)) {
             $message = $message ? 'TRUE' : 'FALSE';
-        }else if (!isset($message)){
+        } else if (!isset($message)) {
             $message = '-NOT SET-';
-        }else if (is_null($message)){
+        } else if (is_null($message)) {
             $message = '-NULL-';
         }
         $this->log->slog('[' . $type . '] ' . $message, $level, $logfile);
+    }
+
+    public function prettyLog($message, $level = 'info', $logfile = null)
+    {
+        $this->log->log(print_r($message, true), $level, $logfile);
     }
 }

@@ -18,6 +18,7 @@ function JTOC()
     return WPJoli\JoliTOC\Application::instance();
 }
 
+// error_log($_SERVER['REQUEST_URI']);
 //Custom toggle icons---
 // add_filter('joli_toc_expand_str', function(){ return '<i class="fa fa-angle-down"></i>';});
 // add_filter('joli_toc_collapse_str', function(){ return '<i class="fa fa-times"></i>';});
@@ -31,6 +32,19 @@ if (!function_exists('jtocpre')) {
     }
 }
 
+// add_action(
+//     'doing_it_wrong_run',
+//     static function ($function_name) {
+//         if ('_load_textdomain_just_in_time' === $function_name) {
+//             // JTOC()->log();
+
+//             echo '<pre>';
+//             jtocpre(json_encode(debug_backtrace()));
+//             // print_r($data);
+//             echo '</pre>';
+//         }
+//     }
+// );
 /**
  * pre only if is super admin
  * @param type $data
@@ -104,305 +118,7 @@ if (!function_exists('jtoc_url_slug')) {
         // Merge options
         $options = array_merge($defaults, $options);
 
-        $char_map = array(
-            // Latin
-            'À' => 'A',
-            'Á' => 'A',
-            'Â' => 'A',
-            'Ã' => 'A',
-            'Ä' => 'A',
-            'Å' => 'A',
-            'Æ' => 'AE',
-            'Ç' => 'C',
-            'È' => 'E',
-            'É' => 'E',
-            'Ê' => 'E',
-            'Ë' => 'E',
-            'Ì' => 'I',
-            'Í' => 'I',
-            'Î' => 'I',
-            'Ï' => 'I',
-            'Ð' => 'D',
-            'Ñ' => 'N',
-            'Ò' => 'O',
-            'Ó' => 'O',
-            'Ô' => 'O',
-            'Õ' => 'O',
-            'Ö' => 'O',
-            'Ő' => 'O',
-            'Ø' => 'O',
-            'Ù' => 'U',
-            'Ú' => 'U',
-            'Û' => 'U',
-            'Ü' => 'U',
-            'Ű' => 'U',
-            'Ý' => 'Y',
-            'Þ' => 'TH',
-            'ß' => 'ss',
-            'à' => 'a',
-            'á' => 'a',
-            'â' => 'a',
-            'ã' => 'a',
-            'ä' => 'a',
-            'å' => 'a',
-            'æ' => 'ae',
-            'ç' => 'c',
-            'è' => 'e',
-            'é' => 'e',
-            'ê' => 'e',
-            'ë' => 'e',
-            'ì' => 'i',
-            'í' => 'i',
-            'î' => 'i',
-            'ï' => 'i',
-            'ð' => 'd',
-            'ñ' => 'n',
-            'ò' => 'o',
-            'ó' => 'o',
-            'ô' => 'o',
-            'õ' => 'o',
-            'ö' => 'o',
-            'ő' => 'o',
-            'ø' => 'o',
-            'ù' => 'u',
-            'ú' => 'u',
-            'û' => 'u',
-            'ü' => 'u',
-            'ű' => 'u',
-            'ý' => 'y',
-            'þ' => 'th',
-            'ÿ' => 'y',
-
-            // Latin symbols
-            '©' => '(c)',
-
-            // Greek
-            'Α' => 'A',
-            'Β' => 'B',
-            'Γ' => 'G',
-            'Δ' => 'D',
-            'Ε' => 'E',
-            'Ζ' => 'Z',
-            'Η' => 'H',
-            'Θ' => '8',
-            'Ι' => 'I',
-            'Κ' => 'K',
-            'Λ' => 'L',
-            'Μ' => 'M',
-            'Ν' => 'N',
-            'Ξ' => '3',
-            'Ο' => 'O',
-            'Π' => 'P',
-            'Ρ' => 'R',
-            'Σ' => 'S',
-            'Τ' => 'T',
-            'Υ' => 'Y',
-            'Φ' => 'F',
-            'Χ' => 'X',
-            'Ψ' => 'PS',
-            'Ω' => 'W',
-            'Ά' => 'A',
-            'Έ' => 'E',
-            'Ί' => 'I',
-            'Ό' => 'O',
-            'Ύ' => 'Y',
-            'Ή' => 'H',
-            'Ώ' => 'W',
-            'Ϊ' => 'I',
-            'Ϋ' => 'Y',
-            'α' => 'a',
-            'β' => 'b',
-            'γ' => 'g',
-            'δ' => 'd',
-            'ε' => 'e',
-            'ζ' => 'z',
-            'η' => 'h',
-            'θ' => '8',
-            'ι' => 'i',
-            'κ' => 'k',
-            'λ' => 'l',
-            'μ' => 'm',
-            'ν' => 'n',
-            'ξ' => '3',
-            'ο' => 'o',
-            'π' => 'p',
-            'ρ' => 'r',
-            'σ' => 's',
-            'τ' => 't',
-            'υ' => 'y',
-            'φ' => 'f',
-            'χ' => 'x',
-            'ψ' => 'ps',
-            'ω' => 'w',
-            'ά' => 'a',
-            'έ' => 'e',
-            'ί' => 'i',
-            'ό' => 'o',
-            'ύ' => 'y',
-            'ή' => 'h',
-            'ώ' => 'w',
-            'ς' => 's',
-            'ϊ' => 'i',
-            'ΰ' => 'y',
-            'ϋ' => 'y',
-            'ΐ' => 'i',
-
-            // Turkish
-            'Ş' => 'S',
-            'İ' => 'I',
-            'Ç' => 'C',
-            'Ü' => 'U',
-            'Ö' => 'O',
-            'Ğ' => 'G',
-            'ş' => 's',
-            'ı' => 'i',
-            'ç' => 'c',
-            'ü' => 'u',
-            'ö' => 'o',
-            'ğ' => 'g',
-
-            // Russian
-            'А' => 'A',
-            'Б' => 'B',
-            'В' => 'V',
-            'Г' => 'G',
-            'Д' => 'D',
-            'Е' => 'E',
-            'Ё' => 'Yo',
-            'Ж' => 'Zh',
-            'З' => 'Z',
-            'И' => 'I',
-            'Й' => 'J',
-            'К' => 'K',
-            'Л' => 'L',
-            'М' => 'M',
-            'Н' => 'N',
-            'О' => 'O',
-            'П' => 'P',
-            'Р' => 'R',
-            'С' => 'S',
-            'Т' => 'T',
-            'У' => 'U',
-            'Ф' => 'F',
-            'Х' => 'H',
-            'Ц' => 'C',
-            'Ч' => 'Ch',
-            'Ш' => 'Sh',
-            'Щ' => 'Sh',
-            'Ъ' => '',
-            'Ы' => 'Y',
-            'Ь' => '',
-            'Э' => 'E',
-            'Ю' => 'Yu',
-            'Я' => 'Ya',
-            'а' => 'a',
-            'б' => 'b',
-            'в' => 'v',
-            'г' => 'g',
-            'д' => 'd',
-            'е' => 'e',
-            'ё' => 'yo',
-            'ж' => 'zh',
-            'з' => 'z',
-            'и' => 'i',
-            'й' => 'j',
-            'к' => 'k',
-            'л' => 'l',
-            'м' => 'm',
-            'н' => 'n',
-            'о' => 'o',
-            'п' => 'p',
-            'р' => 'r',
-            'с' => 's',
-            'т' => 't',
-            'у' => 'u',
-            'ф' => 'f',
-            'х' => 'h',
-            'ц' => 'c',
-            'ч' => 'ch',
-            'ш' => 'sh',
-            'щ' => 'sh',
-            'ъ' => '',
-            'ы' => 'y',
-            'ь' => '',
-            'э' => 'e',
-            'ю' => 'yu',
-            'я' => 'ya',
-
-            // Ukrainian
-            'Є' => 'Ye',
-            'І' => 'I',
-            'Ї' => 'Yi',
-            'Ґ' => 'G',
-            'є' => 'ye',
-            'і' => 'i',
-            'ї' => 'yi',
-            'ґ' => 'g',
-
-            // Czech
-            'Č' => 'C',
-            'Ď' => 'D',
-            'Ě' => 'E',
-            'Ň' => 'N',
-            'Ř' => 'R',
-            'Š' => 'S',
-            'Ť' => 'T',
-            'Ů' => 'U',
-            'Ž' => 'Z',
-            'č' => 'c',
-            'ď' => 'd',
-            'ě' => 'e',
-            'ň' => 'n',
-            'ř' => 'r',
-            'š' => 's',
-            'ť' => 't',
-            'ů' => 'u',
-            'ž' => 'z',
-
-            // Polish
-            'Ą' => 'A',
-            'Ć' => 'C',
-            'Ę' => 'e',
-            'Ł' => 'L',
-            'Ń' => 'N',
-            'Ó' => 'o',
-            'Ś' => 'S',
-            'Ź' => 'Z',
-            'Ż' => 'Z',
-            'ą' => 'a',
-            'ć' => 'c',
-            'ę' => 'e',
-            'ł' => 'l',
-            'ń' => 'n',
-            'ó' => 'o',
-            'ś' => 's',
-            'ź' => 'z',
-            'ż' => 'z',
-
-            // Latvian
-            'Ā' => 'A',
-            'Č' => 'C',
-            'Ē' => 'E',
-            'Ģ' => 'G',
-            'Ī' => 'i',
-            'Ķ' => 'k',
-            'Ļ' => 'L',
-            'Ņ' => 'N',
-            'Š' => 'S',
-            'Ū' => 'u',
-            'Ž' => 'Z',
-            'ā' => 'a',
-            'č' => 'c',
-            'ē' => 'e',
-            'ģ' => 'g',
-            'ī' => 'i',
-            'ķ' => 'k',
-            'ļ' => 'l',
-            'ņ' => 'n',
-            'š' => 's',
-            'ū' => 'u',
-            'ž' => 'z'
-        );
+        $char_map = array( /* Latin */'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A', 'Æ' => 'AE', 'Ç' => 'C', 'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E', 'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I', 'Ð' => 'D', 'Ñ' => 'N', 'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O', 'Ő' => 'O', 'Ø' => 'O', 'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ü' => 'U', 'Ű' => 'U', 'Ý' => 'Y', 'Þ' => 'TH', 'ß' => 'ss', 'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a', 'å' => 'a', 'æ' => 'ae', 'ç' => 'c', 'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e', 'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i', 'ð' => 'd', 'ñ' => 'n', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'o', 'ő' => 'o', 'ø' => 'o', 'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ü' => 'u', 'ű' => 'u', 'ý' => 'y', 'þ' => 'th', 'ÿ' => 'y', /* Latin symbols */ '©' => '(c)', /* Greek */ 'Α' => 'A', 'Β' => 'B', 'Γ' => 'G', 'Δ' => 'D', 'Ε' => 'E', 'Ζ' => 'Z', 'Η' => 'H', 'Θ' => '8', 'Ι' => 'I', 'Κ' => 'K', 'Λ' => 'L', 'Μ' => 'M', 'Ν' => 'N', 'Ξ' => '3', 'Ο' => 'O', 'Π' => 'P', 'Ρ' => 'R', 'Σ' => 'S', 'Τ' => 'T', 'Υ' => 'Y', 'Φ' => 'F', 'Χ' => 'X', 'Ψ' => 'PS', 'Ω' => 'W', 'Ά' => 'A', 'Έ' => 'E', 'Ί' => 'I', 'Ό' => 'O', 'Ύ' => 'Y', 'Ή' => 'H', 'Ώ' => 'W', 'Ϊ' => 'I', 'Ϋ' => 'Y', 'α' => 'a', 'β' => 'b', 'γ' => 'g', 'δ' => 'd', 'ε' => 'e', 'ζ' => 'z', 'η' => 'h', 'θ' => '8', 'ι' => 'i', 'κ' => 'k', 'λ' => 'l', 'μ' => 'm', 'ν' => 'n', 'ξ' => '3', 'ο' => 'o', 'π' => 'p', 'ρ' => 'r', 'σ' => 's', 'τ' => 't', 'υ' => 'y', 'φ' => 'f', 'χ' => 'x', 'ψ' => 'ps', 'ω' => 'w', 'ά' => 'a', 'έ' => 'e', 'ί' => 'i', 'ό' => 'o', 'ύ' => 'y', 'ή' => 'h', 'ώ' => 'w', 'ς' => 's', 'ϊ' => 'i', 'ΰ' => 'y', 'ϋ' => 'y', 'ΐ' => 'i', /* Turkish */ 'Ş' => 'S', 'İ' => 'I', 'Ç' => 'C', 'Ü' => 'U', 'Ö' => 'O', 'Ğ' => 'G', 'ş' => 's', 'ı' => 'i', 'ç' => 'c', 'ü' => 'u', 'ö' => 'o', 'ğ' => 'g', /* Russian */ 'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 'Ё' => 'Yo', 'Ж' => 'Zh', 'З' => 'Z', 'И' => 'I', 'Й' => 'J', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O', 'П' => 'P', 'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'H', 'Ц' => 'C', 'Ч' => 'Ch', 'Ш' => 'Sh', 'Щ' => 'Sh', 'Ъ' => '', 'Ы' => 'Y', 'Ь' => '', 'Э' => 'E', 'Ю' => 'Yu', 'Я' => 'Ya', 'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'yo', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'j', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sh', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'e', 'ю' => 'yu', 'я' => 'ya', /* Ukrainian */ 'Є' => 'Ye', 'І' => 'I', 'Ї' => 'Yi', 'Ґ' => 'G', 'є' => 'ye', 'і' => 'i', 'ї' => 'yi', 'ґ' => 'g', /* Czech */ 'Č' => 'C', 'Ď' => 'D', 'Ě' => 'E', 'Ň' => 'N', 'Ř' => 'R', 'Š' => 'S', 'Ť' => 'T', 'Ů' => 'U', 'Ž' => 'Z', 'č' => 'c', 'ď' => 'd', 'ě' => 'e', 'ň' => 'n', 'ř' => 'r', 'š' => 's', 'ť' => 't', 'ů' => 'u', 'ž' => 'z', /* Polish */ 'Ą' => 'A', 'Ć' => 'C', 'Ę' => 'e', 'Ł' => 'L', 'Ń' => 'N', 'Ó' => 'o', 'Ś' => 'S', 'Ź' => 'Z', 'Ż' => 'Z', 'ą' => 'a', 'ć' => 'c', 'ę' => 'e', 'ł' => 'l', 'ń' => 'n', 'ó' => 'o', 'ś' => 's', 'ź' => 'z', 'ż' => 'z', /* Latvian */ 'Ā' => 'A', 'Č' => 'C', 'Ē' => 'E', 'Ģ' => 'G', 'Ī' => 'i', 'Ķ' => 'k', 'Ļ' => 'L', 'Ņ' => 'N', 'Š' => 'S', 'Ū' => 'u', 'Ž' => 'Z', 'ā' => 'a', 'č' => 'c', 'ē' => 'e', 'ģ' => 'g', 'ī' => 'i', 'ķ' => 'k', 'ļ' => 'l', 'ņ' => 'n', 'š' => 's', 'ū' => 'u', 'ž' => 'z');
 
         // Make custom replacements
         $str = preg_replace(array_keys($options['replacements']), $options['replacements'], $str);
@@ -428,7 +144,7 @@ if (!function_exists('jtoc_url_slug')) {
     }
 }
 
-if (!function_exists('arrayFind')) {
+if (!function_exists('jtoc_array_find')) {
     /**
      * Returns the first sub_array from an array matching $key and $value
      * @param string $key Comparison key
@@ -436,7 +152,7 @@ if (!function_exists('arrayFind')) {
      * @param array $array The array to search from
      * @return array
      */
-    function arrayFind($value, $key, $array)
+    function jtoc_array_find($value, $key, $array)
     {
         $item = null;
         foreach ($array as $row) {
@@ -459,6 +175,7 @@ if (!function_exists('jtoc_get_option')) {
     {
         /** @var SettingsController $settings */
         $settings = JTOC()->requestService(SettingsController::class);
+        // $settings->init();
         // }
 
         if ($global_options !== null) {
@@ -478,6 +195,15 @@ if (!function_exists('jtoc_get_option')) {
     }
 }
 
+if (!function_exists('jtoc_set_option')) {
+
+    function jtoc_set_option($option_id, $value, $options = null)
+    {
+        /** @var SettingsController $settings */
+        $settings = JTOC()->requestService(SettingsController::class);
+        return $settings->setOption($option_id, $value, $options);
+    }
+}
 
 if (!function_exists('jtoc_isset_or_null')) {
     /**
@@ -501,15 +227,42 @@ if (!function_exists('jtoc_isset_or_zero')) {
     }
 }
 
-if (!function_exists('joli_minify')) {
-    /**
-     * Removes line breaks and excessive empty spaces from a string
-     */
-    function joli_minify($string)
-    {
-        return  preg_replace('/\v(?:[\v\h]+)/', '', $string);
-    }
-}
+// if (!function_exists('joli_minify')) {
+//     /**
+//      * Removes line breaks and excessive empty spaces from a string
+//      */
+//     function joli_minify($string)
+//     {
+//         return  preg_replace('/\v(?:[\v\h]+)/', '', $string);
+//     }
+// }
+
+// function minify_html_with_css($html) {
+//     // Minify CSS inside <style> blocks
+//     $html = preg_replace_callback('#<style\b[^>]*>(.*?)</style>#is', function ($matches) {
+//         $css = $matches[1];
+
+//         // Remove comments (/* ... */ only)
+//         $css = preg_replace('#/\*.*?\*/#s', '', $css);
+
+//         // Remove whitespace and format
+//         $css = preg_replace('/\s+/', ' ', $css);                   // collapse whitespace
+//         $css = preg_replace('/\s*([{}:;,])\s*/', '$1', $css);      // trim around delimiters
+//         $css = trim($css);
+
+//         return '<style>' . $css . '</style>';
+//     }, $html);
+
+//     // Minify the HTML
+//     $html = preg_replace('/>\s+</', '><', $html);                 // remove space between tags
+//     $html = preg_replace('/\s{2,}/', ' ', $html);                 // collapse extra spaces
+
+//     // Trim spaces before closing tag brackets: e.g., attr="val" >
+//     $html = preg_replace('/\s+>/', '>', $html);
+
+//     return trim($html);
+// }
+
 
 if (!function_exists('jtoc_is_front')) {
     function jtoc_is_front()
@@ -522,23 +275,8 @@ if (!function_exists('jtoc_is_front')) {
     }
 }
 
-if (!function_exists('jtoc_save_html_no_wrapping')) {
-    function jtoc_save_html_no_wrapping($html)
-    {
-        // $htmlh = '<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">';
-        $html_fragment = preg_replace('/<!DOCTYPE.+?>/', '',  trim($html->saveHTML()));
-
-        // if (strpos($html_fragment, '<html><body>') === 0) {
-        // $html_fragment = substr($html_fragment, 12, -14);
-        // }
-        $html_fragment = preg_replace('/<html><body>|<\/body><\/html>/', '', $html_fragment);
-
-        return $html_fragment;
-    }
-}
-
-if (!function_exists('getHostURL')) {
-    function getHostURL()
+if (!function_exists('jtoc_get_host_url')) {
+    function jtoc_get_host_url()
     {
 
         $_url = parse_url(site_url());
@@ -546,24 +284,24 @@ if (!function_exists('getHostURL')) {
     }
 }
 
-if (!function_exists('jtoc_css_prop')) {
-    /**
-     * Returns a css string if the value is set or not null
-     *
-     * @param [type] $prop
-     * @param [type] $value
-     * @return void 
-     */
-    function jtoc_css_prop($prop, &$value, $suffix = '')
-    {
+// if (!function_exists('jtoc_css_prop')) {
+//     /**
+//      * Returns a css string if the value is set or not null
+//      *
+//      * @param [type] $prop
+//      * @param [type] $value
+//      * @return void 
+//      */
+//     function jtoc_css_prop($prop, &$value, $suffix = '')
+//     {
 
-        if (isset($value) && $value) {
-            return sprintf('%s: %s%s;', $prop, $value, $suffix);
-        }
+//         if (isset($value) && $value) {
+//             return sprintf('%s: %s%s;', $prop, $value, $suffix);
+//         }
 
-        return '';
-    }
-}
+//         return '';
+//     }
+// }
 
 if (!function_exists('jtoc_match_string')) {
     /**
@@ -768,6 +506,41 @@ if (!function_exists('jtoc_attrify')) {
         }
 
         return implode(' ', $attr_str);
+    }
+}
+
+if (!function_exists('jtoc_cssify')) {
+
+    /**
+     * Turns an associative array into an inline css attribute
+     * Ex: [ 'background-color' => 'red' ] will render background-color:red;
+     * Ex: [ 'background-color' => [ 'red', 'blue' ] ] will render background-color:red blue;
+     *
+     * @since 2.8.0
+     * @param [array] $css Associative array of style => value 
+     * @return string
+     */
+    function jtoc_cssify($css = null)
+    {
+        if (!is_array($css)) {
+            return $css;
+        }
+
+        $attr_str = [];
+
+        $callback = function ($key,  $value) {
+            if (gettype($value) === 'array') {
+                $str_value = implode(' ', $value);
+            } else {
+                $str_value = $value;
+            }
+            return sprintf('%1$s:%2$s;', $key, $str_value);
+        };
+
+        $attr_str = array_map($callback, array_keys($css), array_values($css));
+
+
+        return implode('', $attr_str);
     }
 }
 

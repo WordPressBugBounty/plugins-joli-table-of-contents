@@ -5,12 +5,12 @@
  */
 namespace WPJoli\JoliTOC\Controllers;
 
-use ErrorException;
+// use ErrorException;
 use WPJoli\JoliTOC\Application;
 use WPJoli\JoliTOC\Controllers\Callbacks\SettingsCallbacks;
 use WPJoli\JoliTOC\Controllers\PostTypeSettingController;
 use WPJoli\JoliTOC\Controllers\V1ToV2Settings;
-use WPJoli\JoliTOC\Config\Settings;
+// use WPJoli\JoliTOC\Config\Settings;
 class SettingsController {
     protected $prefix;
 
@@ -39,17 +39,29 @@ class SettingsController {
 
     protected $post_type_settings = [];
 
+    protected $has_init = false;
+
     /**
      * Undocumented function
      *
      * @param [type] $post_type specify post_type to fetech specific options 
      */
-    public function __construct( $post_type = null ) {
-        // set_error_handler(function($severity, $message, $file, $line) {
-        //     if (error_reporting() & $severity) {
-        //         throw new ErrorException($message, 0, $severity, $file, $line);
-        //     }
-        // });
+    // public function __construct($post_type = null)
+    // {
+    //     // if (
+    //     //     stripos($current_screen, $jtoc::SLUG) !== false
+    //     //     || stripos($current_screen, $jtoc::SETTINGS_V2_SLUG) !== false
+    //     // ) {
+    //     add_action('init', function () use ($post_type) {
+    //         JTOC()->log('--- init  ----------------');
+    //         // JTOC()->log (get_current_screen());
+    //         $this->init($post_type);
+    //     });
+    // }
+    public function initialize( $post_type = null ) {
+        if ( $this->has_init ) {
+            return;
+        }
         $this->settings_cb = new SettingsCallbacks();
         //loads the default settings array
         $this->settings = $this->defaultSettings();
@@ -89,6 +101,7 @@ class SettingsController {
         $this->cached_settings = $db_options;
         // $this->cached_settings = $current_options;
         // var_dump($this->cached_settings);
+        $this->has_init = true;
     }
 
     public function handleResetSettings() {
@@ -187,6 +200,9 @@ class SettingsController {
     }
 
     public function registerSettings() {
+        // if ($this->groups = []) {
+        //     $this->init();
+        // }
         $post_types = get_post_types( [
             'public' => true,
         ], 'objects' );
@@ -271,7 +287,7 @@ class SettingsController {
         //     ...
         // ]
         foreach ( $input as $option => $value ) {
-            $field_item = arrayFind( $option, 'option_id', $this->fields );
+            $field_item = jtoc_array_find( $option, 'option_id', $this->fields );
             $key = 'sanitize';
             $sanitization = jtoc_isset_or_null( $field_item[$key] );
             //Since 2.0.0
@@ -314,6 +330,7 @@ class SettingsController {
      */
     public function setupSettings() {
         $page_name = $this->getPageName();
+        // JTOC()->prettyLog($page_name);
         if ( !$this->fields ) {
             $this->initSettings();
         }
@@ -328,6 +345,7 @@ class SettingsController {
         //add the option to the database if none
         if ( get_option( $page_name ) === false ) {
             add_option( $page_name, $options );
+            // JTOC()->log(add_option($page_name, $options));
         }
         $this->cached_settings = $options;
     }
@@ -349,7 +367,7 @@ class SettingsController {
     // public function getOption($name, $section, $default = false, $options_override = null)
     // {
     //     $option_selector = $section . '.' . $name;
-    //     $field_item = arrayFind($name, 'id', $this->fields);
+    //     $field_item = jtoc_array_find($name, 'id', $this->fields);
     //     // error_log($name);
     //     $default_val = $field_item['default'];
     //     if ($default === true) {
@@ -378,16 +396,13 @@ class SettingsController {
         }, $this->fields );
         if ( $additional_options && is_array( $additional_options ) ) {
             $keys = array_keys( $additional_options );
-            // pre($keys);
-            // pre($id_list);
-            // $id_list = array_merge($keys, ['ppede', 'cucu']);
             $id_list = array_merge( $keys, $id_list );
         }
         return $id_list;
     }
 
     public function isOptionGlobal( $option_id ) {
-        $field_item = arrayFind( $option_id, 'option_id', $this->fields );
+        $field_item = jtoc_array_find( $option_id, 'option_id', $this->fields );
         return jtoc_isset_or_null( $field_item['global'] ) === true;
     }
 
@@ -401,7 +416,7 @@ class SettingsController {
      * @return mixed option value, default value, or null
      */
     public function getOption( $option_id, $default = false, $options_override = null ) {
-        $field_item = arrayFind( $option_id, 'option_id', $this->fields );
+        $field_item = jtoc_array_find( $option_id, 'option_id', $this->fields );
         $default_val = jtoc_isset_or_null( $field_item['default'] );
         if ( $default === true ) {
             return $default_val;
@@ -426,6 +441,42 @@ class SettingsController {
             return $value;
         }
         return;
+    }
+
+    /**
+     * Updates the value of an option in the database and in the cache
+     *
+     * @param string $option_id The id of the option to update
+     * @param mixed $value The value to update the option with
+     * @return mixed The sanitized value of the option
+     */
+    public function setOption( $option_id, $value ) {
+        // 1. Look for element in $this->fields
+        $option = jtoc_array_find( $option_id, 'option_id', $this->fields );
+        if ( !$option ) {
+            return false;
+        }
+        // 2. Check the 'sanitize' offset
+        $sanitize = jtoc_isset_or_null( $option['sanitize'] );
+        if ( !$sanitize ) {
+            $sanitize = jtoc_isset_or_null( $option['type'] );
+        }
+        // 3. Check the 'sanitize_args' offset
+        $sanitize_args = jtoc_isset_or_null( $option['sanitize_args'] );
+        // 4. Perform the sanitation based on the value of the 'sanitize' offset
+        if ( $sanitize ) {
+            //builds the corresponding method name: ex: sanitizeText found in the SettingsCallbacks class
+            $method_name = 'sanitize' . ucfirst( $sanitize );
+            if ( method_exists( $this->settings_cb, $method_name ) ) {
+                $santized_value = call_user_func( [$this->settings_cb, $method_name], $value, $sanitize_args );
+            }
+            // 5. Update the value in $this->cached_settings
+            $this->cached_settings[$option_id] = $santized_value;
+            // 6. Update the value in the database
+            $updated = update_option( $this->getPageName(), $this->cached_settings );
+            return $santized_value;
+        }
+        return false;
     }
 
     /**

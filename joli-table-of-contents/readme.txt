@@ -3,8 +3,8 @@ Contributors: wpjoli
 Donate link: 
 Tags: table of contents,toc,navigation,table of content,page contents
 Requires at least: 5.0
-Tested up to: 6.7.2
-Stable tag: 2.7.0
+Tested up to: 6.8
+Stable tag: 2.8.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -15,9 +15,7 @@ The Best Table of Contents Plugin for WordPress. User-friendly. Gutenberg Block.
 
 Joli Table Of Contents is the best table of contents plugin for WordPress. It is user-friendly and highly customizable, designed with performance in mind, it offers a seamless experience for both users and developers. With features like Gutenberg block support, auto-insert options, and multilingual compatibility, it's the perfect solution for enhancing your website's navigation.
 
-[Documentation](https://wpjoli.com/docs/joli-table-of-contents/"Documentation for Joli Table Of Contents")
-
-https://www.youtube.com/watch?v=TXfJ4SnsNUA
+[Documentation](https://wpjoli.com/docs/joli-table-of-contents/ "Documentation for Joli Table Of Contents")
 
 ## ⭐HIGHLIGHTS
 ### 🆕 GUTENBERG BLOCK
@@ -316,6 +314,14 @@ In order to change the color, go to the Settings, then under the Appearance tab,
 15. Settings page - PROGRESS BAR
 
 == Changelog ==
+
+= 2.8.0 =
+* WP 6.8 compatibility
+* Improved new TOC processing engine
+* Improved custom CSS section of the settings
+* Fixed PHP warnings
+* Fixed View more button could show up in the floating widget
+
 
 = 2.7.0 =
 * WP 6.7.2 compatibility

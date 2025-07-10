@@ -127,11 +127,27 @@ class ShortcodesController
 
         $tocBuilder = $this->tocBuilder[$shortcode_index];
 
+        // set the initial microtime
+        // $start_time = microtime(true);
+
         $processed_content = ContentProcessing::Process($content, false, $tocBuilder, jtoc_get_multipaged_content());
+
+        // //end time
+        // $end_time = microtime(true);
+        // $total_time = round($end_time - $start_time, 3);
+        // $time_display = jtoc_tagify(
+        //     'p',
+        //     'Processed in ' . $total_time . 's',
+        //     ['style' => jtoc_cssify([
+        //         'color' => 'red',
+        //         'font-weight' => 'bold',
+        //     ])]
+        // );
 
         if ($processed_content) {
             $this->headings_processed[$shortcode_index] = $processed_content['headings'];
-            $this->the_content_processed = $processed_content['content'];
+            $this->the_content_processed =  $processed_content['content'];
+            // $this->the_content_processed = $time_display . $processed_content['content'];
         }
 
         if ($this->headings_processed[$shortcode_index]) {

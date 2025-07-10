@@ -54,7 +54,7 @@ class NoticesFreeController
     public function makeGoProNotice()
     {
         $base_url = 'https://wpjoli.com/joli-table-of-contents/';
-        $params = '?utm_source=' . getHostURL() . '&utm_medium=admin-notice';
+        $params = '?utm_source=' . jtoc_get_host_url() . '&utm_medium=admin-notice';
 
         $data = [ 
             'pro_url' => $base_url . $params,

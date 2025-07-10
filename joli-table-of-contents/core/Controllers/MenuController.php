@@ -22,11 +22,11 @@ class MenuController
     protected $option_group;
     protected $logo_url;
 
-    public function __construct()
-    {
-        //Registers the menu afters functions.php has been processed to allow custom filter hooks for joli_toc_settings_capability
-        add_action('after_setup_theme', [$this, 'setup']);
-    }
+    // public function __construct()
+    // {
+    //     //Registers the menu afters functions.php has been processed to allow custom filter hooks for joli_toc_settings_capability
+    //     add_action('after_setup_theme', [$this, 'setup']);
+    // }
 
     public function setup()
     {
@@ -104,7 +104,7 @@ class MenuController
         return $this;
     }
 
-    public function withSubPage(string $title = null)
+    public function withSubPage($title)
     {
         if (empty($this->admin_pages)) {
             return $this;
@@ -114,7 +114,7 @@ class MenuController
             [
                 'parent_slug' => $admin_page['menu_slug'],
                 'page_title' => $admin_page['page_title'],
-                'menu_title' => ($title) ? $title : $admin_page['menu_title'],
+                'menu_title' => jtoc_isset_or_null($title) ? $title : $admin_page['menu_title'],
                 'capability' => $admin_page['capability'],
                 'menu_slug' => $admin_page['menu_slug'],
                 'callback' => $admin_page['callback']
@@ -132,6 +132,8 @@ class MenuController
 
     public function addAdminMenu()
     {
+        $this->setup();
+        
         foreach ($this->admin_pages as $page) {
             add_menu_page($page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['callback'], $page['icon_url'], $page['position']);
         }
@@ -182,7 +184,7 @@ class MenuController
 
         $wpjoli_url = 'https://wpjoli.com/';
         $base_url = 'https://wpjoli.com/joli-table-of-contents/';
-        $params = '?utm_source=' . getHostURL() . '&utm_medium=admin-settings&utm_campaign=joli-table-of-contents-settings';
+        $params = '?utm_source=' . jtoc_get_host_url() . '&utm_medium=admin-settings&utm_campaign=joli-table-of-contents-settings';
 
         /**
          * Since 2.0.0
