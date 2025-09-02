@@ -7,7 +7,7 @@
         <?php esc_html_e('We recommend switching now, as the previous engine is being deprecated.', 'joli-table-of-contents') ?>
     </p>
     <p>
-        <?php echo sprintf(esc_html__('Please check your pages on the front-end for any issues. You can revert anytime from the %s under GENERAL > TOC ENGINE if anything goes wrong.', 'joli-table-of-contents'), '<a href="' . esc_url(admin_url('admin.php?page=' . JTOC()::SETTINGS_V2_SLUG)) . '">' . esc_html__('settings', 'joli-table-of-contents') . '</a>') ?>
+        <?php /* translators: %s: settings */ echo sprintf(esc_html__('Please check your pages on the front-end for any issues. You can revert anytime from the %s under GENERAL > TOC ENGINE if anything goes wrong.', 'joli-table-of-contents'), '<a href="' . esc_url(admin_url('admin.php?page=' . JTOC()::SETTINGS_V2_SLUG)) . '">' . esc_html__('settings', 'joli-table-of-contents') . '</a>') ?>
     </p>
     <p style="<?php echo esc_attr( jtoc_cssify(['display' => 'flex', 'gap' => '10px'])) ?>">
         <!-- activate -->

@@ -9,6 +9,7 @@ function jtoc_xy_custom_connect_message_on_update(
     $freemius_link
 ) {
     return sprintf(
+        /* translators: 1: user first name; */
         __( 'Hey %1$s', 'joli-table-of-contents' ) . ',<br>' . __( 'Please help us improve %2$s! If you opt-in, some data about your usage of %2$s will be sent to %5$s. If you skip this, that\'s okay! %2$s will still work just fine.', 'joli-table-of-contents' ),
         $user_first_name,
         '<b>' . $plugin_title . '</b>',

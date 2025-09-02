@@ -913,7 +913,8 @@ return [
                                 ['class' => ['description', 'danger']]
                             ),
                         ],
-                        'default' => 0,
+                        'initial_value' => 1, // initial value for new installs
+                        'default' => 0, // default value for exisiting installs
                         'sanitize' => 'checkbox',
                         'has_block_attr' => false,
                     ],

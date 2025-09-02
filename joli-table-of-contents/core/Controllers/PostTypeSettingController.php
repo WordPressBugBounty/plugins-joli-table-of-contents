@@ -28,7 +28,7 @@ class PostTypeSettingController
     {
         check_ajax_referer(JTOC()::SLUG, 'nonce');
 
-        $value = jtoc_isset_or_null($_POST['active_post_type']);
+        $value = sanitize_key(jtoc_isset_or_null($_POST['active_post_type']));
 
         if ($value !== null || $value !== false) {
             $update = $this->options->set('active_setting_post_types', $value);

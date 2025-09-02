@@ -4,7 +4,7 @@ Donate link:
 Tags: table of contents,toc,navigation,table of content,page contents
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 2.8.0
+Stable tag: 2.8.1
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -215,6 +215,7 @@ Customizes the title (collapse).
 
 = ⭐ CHECK OUR OTHER PLUGINS =
 * [Smart Auto Featured Image](https://wordpress.org/plugins/smart-auto-featured-image/)
+* [ZenForm](https://wordpress.org/plugins/zenform/)
 * [Joli FAQ SEO](https://wordpress.org/plugins/joli-faq-seo/)
 * [Joli CLEAR Lightbox](https://wordpress.org/plugins/joli-clear-lightbox/)
 
@@ -315,12 +316,18 @@ In order to change the color, go to the Settings, then under the Appearance tab,
 
 == Changelog ==
 
+= 2.8.1 =
+* Security fix
+* Added "override" shortcode attribute, so that a shortcode can be overriden by an exisiting block
+* Fixed RTL floating widget close button position [PRO]
+
 = 2.8.0 =
 * WP 6.8 compatibility
 * Improved new TOC processing engine
 * Improved custom CSS section of the settings
+* Improved Jump-to values now take the admin bar into account
 * Fixed PHP warnings
-* Fixed View more button could show up in the floating widget
+* Fixed View more button could show up in the floating widget [PRO]
 
 
 = 2.7.0 =

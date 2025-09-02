@@ -279,7 +279,7 @@ if (!function_exists('jtoc_get_host_url')) {
     function jtoc_get_host_url()
     {
 
-        $_url = parse_url(site_url());
+        $_url = wp_parse_url(site_url());
         return $_url ? urlencode($_url['host']) : false;
     }
 }
@@ -499,7 +499,7 @@ if (!function_exists('jtoc_attrify')) {
                 } else {
                     $str_value = $value;
                 }
-                return sprintf(' %1$s="%2$s"', $key, $str_value);
+                return sprintf(' %1$s="%2$s"', esc_html($key), esc_attr($str_value));
             };
 
             $attr_str = array_map($callback, array_keys($attrs), array_values($attrs));

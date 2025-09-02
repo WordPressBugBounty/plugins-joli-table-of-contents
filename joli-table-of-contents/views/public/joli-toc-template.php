@@ -1,3 +1,4 @@
+<?php defined('ABSPATH') || exit; ?>
 <?php
 $has_custom_styles = ($toc_styles_general || $toc_styles || $toc_styles_root || $custom_css);
 $preserve_styles = $preserve_theme_styles ? '' : '.--jtoc-has-custom-styles';
@@ -14,34 +15,34 @@ $toc_inline_styles_str = $toc_inline_styles ? jtoc_attrify(['style' => $toc_inli
   <?php ob_start(); ?>
   <?php if ($toc_styles_root) : ?>
     :root {
-    <?php echo $toc_styles_root ?>
+      <?php echo wp_strip_all_tags($toc_styles_root) ?>
     }
   <?php endif; ?>
   <?php if ($toc_styles_general) : ?>
-    .wpj-jtoc.<?php echo $theme_class ?><?php echo $preserve_styles ?> {
-    <?php echo $toc_styles_general ?>
+      .wpj-jtoc.<?php echo wp_strip_all_tags($theme_class) ?><?php echo wp_strip_all_tags($preserve_styles) ?> {
+      <?php echo wp_strip_all_tags($toc_styles_general) ?>
     }
   <?php endif; ?>
   <?php if ($toc_styles && !$preserve_theme_styles) : ?>
-    .wpj-jtoc.<?php echo $theme_class ?><?php echo $preserve_styles ?> {
-    <?php echo $toc_styles ?>
+      .wpj-jtoc.<?php echo wp_strip_all_tags($theme_class) ?><?php echo wp_strip_all_tags($preserve_styles) ?> {
+      <?php echo wp_strip_all_tags($toc_styles) ?>
     }
   <?php endif; ?>
-  <?php if ($custom_css) : ?><?php echo $custom_css ?><?php endif; ?>
+  <?php if ($custom_css) : ?><?php echo wp_strip_all_tags($custom_css) ?><?php endif; ?>
   <?php $all_styles = trim(ob_get_contents());
   ob_end_clean(); ?>
 <?php endif; ?>
 
 <?php if ($all_styles) : ?>
 <style>
-  <?php echo $all_styles ?>
+  <?php echo wp_strip_all_tags($all_styles) ?>
 </style>
 <?php endif; ?>
 
 <?php do_action('joli_toc_before_table_of_contents', $data); ?>
 <div id="wpj-jtoc" class="wpj-jtoc wpj-jtoc--main<?php echo $in_the_content ?><?php echo $toc_wrapper_shared_classes ?><?php echo $toc_wrapper_main_classes ?><?php echo $hidden_main_toc ?>" <?php echo $toc_style ?>>
   <!-- TOC -->
-  <div class="wpj-jtoc--toc<?php echo $toc_classes ?><?php echo $is_hidden_class ?>" <?php echo $toc_inline_styles_str ?>>
+  <div class="wpj-jtoc--toc<?php echo esc_attr($toc_classes) ?><?php echo esc_attr($is_hidden_class) ?>" <?php echo $toc_inline_styles_str ?>>
     <?php do_action('joli_toc_before_header', $data); ?>
     <?php if ($show_header) : ?>
       <div class="wpj-jtoc--header">
@@ -53,7 +54,7 @@ $toc_inline_styles_str = $toc_inline_styles ? jtoc_attrify(['style' => $toc_inli
                 <?php echo $title_icon ?>
               </div>
             <?php endif; ?>
-            <span class="wpj-jtoc--title-label"><?php echo $title; ?></span>
+            <span class="wpj-jtoc--title-label"><?php echo wp_kses_post($title); ?></span>
           </div>
           <?php do_action('joli_toc_after_title', $data); ?>
           <?php if ($show_toggle) : ?>
@@ -62,17 +63,17 @@ $toc_inline_styles_str = $toc_inline_styles ? jtoc_attrify(['style' => $toc_inli
                 <!-- toggle icon instead of the toggle box if any custom icon -->
                 <div class="wpj-jtoc--toggle-text">
                   <div class="wpj-jtoc--toggle-opened">
-                    <span class="--jtoc-bracket">[</span><?php echo $toggle_button_text_opened; ?><span class="--jtoc-bracket">]</span>
+                    <span class="--jtoc-bracket">[</span><?php echo esc_html($toggle_button_text_opened); ?><span class="--jtoc-bracket">]</span>
                   </div>
                   <div class="wpj-jtoc--toggle-closed">
-                    <span class="--jtoc-bracket">[</span><?php echo $toggle_button_text_closed; ?><span class="--jtoc-bracket">]</span>
+                    <span class="--jtoc-bracket">[</span><?php echo esc_html($toggle_button_text_closed); ?><span class="--jtoc-bracket">]</span>
                   </div>
                 </div>
               <?php endif; ?>
               <?php if ($toggle_type === 'icon-std') : ?>
                 <div class="wpj-jtoc--toggle-icon">
-                  <div class="wpj-jtoc--toggle-opened"><?php echo $toggle_button_icon_opened; ?></div>
-                  <div class="wpj-jtoc--toggle-closed"><?php echo $toggle_button_icon_closed; ?></div>
+                  <div class="wpj-jtoc--toggle-opened"><?php echo wp_kses_post($toggle_button_icon_opened); ?></div>
+                  <div class="wpj-jtoc--toggle-closed"><?php echo wp_kses_post($toggle_button_icon_closed); ?></div>
                 </div>
               <?php endif; ?>
               <?php if ($toggle_type === 'icon') : ?>

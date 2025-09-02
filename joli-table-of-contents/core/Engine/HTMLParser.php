@@ -16,7 +16,7 @@ class HTMLParser
 
     public function __construct($mode = 1)
     {
-        
+
         $use_engine_v2 = (bool) jtoc_get_option('toc_engine_v2');
         // JTOC()->log($use_engine_v2);
         $this->setMode($use_engine_v2 ? 2 : $mode);
@@ -117,7 +117,7 @@ class HTMLParser
 
         // Create DOMDocument and set encoding manually
         $html = new DOMDocument();
-        
+
         // Ensure it has a full HTML structure for DOMDocument
         $wrappedHtml = $this->wrapContent($tidy_content);
         // unset($tidy_content);
@@ -167,17 +167,23 @@ class HTMLParser
     protected function wrapContent($content)
     {
         $id = HTMLParser::CONTENT_WRAP_HTML_ID;
-        return <<<HTML
-        <!DOCTYPE html>
+        return '<!DOCTYPE html>
         <html>
-            <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-            </head>
-            <body>
-                <div id="$id">$content</div>
-            </body>
-        </html>
-        HTML;
+            <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+            <body><div id="' . $id . '">' . $content . '</div></body>
+        </html>';
+
+        // return <<<HTML
+        // <!DOCTYPE html>
+        // <html>
+        //     <head>
+        //         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        //     </head>
+        //     <body>
+        //         <div id="$id">$content</div>
+        //     </body>
+        // </html>
+        // HTML;
     }
 
     protected function getHTMLv1(DOMDocument $doc): string

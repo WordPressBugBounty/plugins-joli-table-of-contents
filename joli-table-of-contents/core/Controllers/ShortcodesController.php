@@ -89,11 +89,24 @@ class ShortcodesController
             $shortcode_defaults = array_merge($additional_options, $shortcode_defaults);
         }
 
+        // if override attr is set, let's use another shortcode's options instead from the same page
+        if (isset($atts['override'])) {
+            $shortcode_defaults = array_merge(['override' => $atts['override']], $shortcode_defaults);
+        }
+
         $atts = shortcode_atts(
             $shortcode_defaults, //default values
             $atts, //user custom attr ex :[joli-toc attr='1' attr1='asc']
             apply_filters('jolitoc_shortcode_tag', Application::DOMAIN)
         );
+
+        // extract the index attr from the shortcode
+        $custom_index = jtoc_isset_or_null($atts['override']);
+
+        // if custom index is set, let's use it
+        if ($custom_index !== null && (int) $custom_index < count($this->tocBuilder) && (int) $custom_index >= 0) {
+            $shortcode_index = $custom_index;
+        }
 
         $tocBuilder->setOptions($atts, $additional_options);
 

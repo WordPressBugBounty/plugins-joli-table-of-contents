@@ -229,8 +229,16 @@ class MenuController
 
             'plugins' => [
                 [
+                    'name' => 'ZenForm',
+                    'name_style' => ['font-size' => '18px'],
+                    'highlight' => "100% FREE !",
+                    'url' => 'https://wordpress.org/plugins/zenform/',
+                    'desc' => "Create a professional looking contact form in just a few clicks with our beginner-friendly form builder.",
+                    'thumb' => JTOC()->url('assets/admin/img/plugins/wpjoli-zenform.png'),
+                ],
+                [
                     'name' => "Smart Auto \nFeatured Image",
-                    'highlight' => "NEW PLUGIN !",
+                    // 'highlight' => "NEW PLUGIN !",
                     'url' => $wpjoli_url . 'smart-auto-featured-image/' . $params,
                     'desc' => "Generate Featured Images automatically based on your post content (title, etc).\nCustomize your featured image with the built in template editor.",
                     'thumb' => JTOC()->url('assets/admin/img/plugins/wpjoli-smart-auto-featured-image.png'),
@@ -241,12 +249,12 @@ class MenuController
                     'desc' => "WordPress FAQ plugin:\nEasy & fast single page drag-n-drop editor, lightweight, no jQuery, block-enabled, schema.org, optimized for SEO.",
                     'thumb' => JTOC()->url('assets/admin/img/plugins/wpjoli-joli-faq-seo.png'),
                 ],
-                [
-                    'name' => 'Joli CLEAR Lightbox',
-                    'url' => $wpjoli_url . 'joli-clear-lightbox/' . $params,
-                    'desc' => "Ultralight Lightbox for WordPress.\nDesigned for Speed. No jQuery. Responsive with gestures. Simple, Elegant & Powerful.",
-                    'thumb' => JTOC()->url('assets/admin/img/plugins/wpjoli-joli-clear-lightbox.png'),
-                ],
+                // [
+                //     'name' => 'Joli CLEAR Lightbox',
+                //     'url' => $wpjoli_url . 'joli-clear-lightbox/' . $params,
+                //     'desc' => "Ultralight Lightbox for WordPress.\nDesigned for Speed. No jQuery. Responsive with gestures. Simple, Elegant & Powerful.",
+                //     'thumb' => JTOC()->url('assets/admin/img/plugins/wpjoli-joli-clear-lightbox.png'),
+                // ],
             ],
             // 'joli_faq_seo_url' => $wpjoli_url . 'joli-faq-seo/' . $params,
             // 'joli_clear_lightbox_url' => $wpjoli_url . 'joli-clear-lightbox/' . $params,
@@ -257,7 +265,7 @@ class MenuController
             'post_types' => $post_types, //label, name, menu_icon
             'admin_url' => $admin_url,
             'jtoc_settings_url' => sprintf('%sadmin.php?page=' . JTOC()::SETTINGS_V2_SLUG, $admin_url),
-            'active_post_type' => jtoc_isset_or_null($_GET['jtoc_post_type'], true),
+            'active_post_type' => sanitize_key(jtoc_isset_or_null($_GET['jtoc_post_type'], true)),
             'activated_post_type' => $activated_post_type,
             'js_vars' => ['jtoc_custom_themes' => $custom_themes],
 

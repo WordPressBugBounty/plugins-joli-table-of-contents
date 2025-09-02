@@ -62,7 +62,7 @@ class AdminController {
 
     public function addSettingsLink( $links ) {
         $jtoc = JTOC();
-        $joli_link = '<a href="' . admin_url( 'admin.php?page=' . $jtoc::SETTINGS_V2_SLUG ) . '">' . __( 'Settings' ) . '</a>';
+        $joli_link = '<a href="' . admin_url( 'admin.php?page=' . $jtoc::SETTINGS_V2_SLUG ) . '">' . __( 'Settings', 'joli-table-of-contents' ) . '</a>';
         array_unshift( $links, $joli_link );
         return $links;
     }

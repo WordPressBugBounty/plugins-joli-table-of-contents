@@ -146,24 +146,24 @@ class JoliApplication
         $this->log->log('[' . $type . '] ' . $message, $level, $logfile);
     }
 
-    public function slog($message, $level = 'info', $logfile = null)
-    {
-        $type = gettype($message);
+    // public function slog($message, $level = 'info', $logfile = null)
+    // {
+    //     $type = gettype($message);
 
-        if (is_array($message) || is_object($message)) {
-            $message = json_encode($message);
-        } else if (is_bool($message)) {
-            $message = $message ? 'TRUE' : 'FALSE';
-        } else if (!isset($message)) {
-            $message = '-NOT SET-';
-        } else if (is_null($message)) {
-            $message = '-NULL-';
-        }
-        $this->log->slog('[' . $type . '] ' . $message, $level, $logfile);
-    }
+    //     if (is_array($message) || is_object($message)) {
+    //         $message = json_encode($message);
+    //     } else if (is_bool($message)) {
+    //         $message = $message ? 'TRUE' : 'FALSE';
+    //     } else if (!isset($message)) {
+    //         $message = '-NOT SET-';
+    //     } else if (is_null($message)) {
+    //         $message = '-NULL-';
+    //     }
+    //     $this->log->slog('[' . $type . '] ' . $message, $level, $logfile);
+    // }
 
-    public function prettyLog($message, $level = 'info', $logfile = null)
-    {
-        $this->log->log(print_r($message, true), $level, $logfile);
-    }
+    // public function prettyLog($message, $level = 'info', $logfile = null)
+    // {
+    //     $this->log->log(print_r($message, true), $level, $logfile);
+    // }
 }

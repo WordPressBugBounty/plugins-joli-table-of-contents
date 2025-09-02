@@ -316,7 +316,7 @@ class SettingsController {
         foreach ( $this->sections as $section ) {
             if ( $section['name'] === $args['id'] ) {
                 if ( isset( $section['desc'] ) && $section['desc'] ) {
-                    echo '<div class="joli-section-desc" style="display:none">' . $section['desc'] . '</div>';
+                    echo '<div class="joli-section-desc" style="display:none">' . wp_kses_post( $section['desc'] ) . '</div>';
                 }
                 break;
             }
@@ -553,7 +553,7 @@ class SettingsController {
 
     public function exportUserSetting() {
         check_ajax_referer( JTOC()::SLUG, 'nonce' );
-        $apt = jtoc_isset_or_null( $_POST['active_post_type'] );
+        $apt = sanitize_key( jtoc_isset_or_null( $_POST['active_post_type'] ) );
         $current_settings = $this->getOptions( $apt );
         if ( $current_settings ) {
             $hash = hash( 'sha256', json_encode( $current_settings ) );
@@ -570,7 +570,7 @@ class SettingsController {
 
     public function importUserSetting() {
         check_ajax_referer( JTOC()::SLUG, 'nonce' );
-        $apt = $_POST['active_post_type'];
+        $apt = sanitize_key( $_POST['active_post_type'] );
         $file = $_POST['file'];
         $settings = json_decode( stripslashes( $file ), true );
         $hash = jtoc_isset_or_null( $settings['_jtoc_hash'] );
