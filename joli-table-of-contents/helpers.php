@@ -18,7 +18,6 @@ function JTOC()
     return WPJoli\JoliTOC\Application::instance();
 }
 
-// error_log($_SERVER['REQUEST_URI']);
 //Custom toggle icons---
 // add_filter('joli_toc_expand_str', function(){ return '<i class="fa fa-angle-down"></i>';});
 // add_filter('joli_toc_collapse_str', function(){ return '<i class="fa fa-times"></i>';});
@@ -32,19 +31,6 @@ if (!function_exists('jtocpre')) {
     }
 }
 
-// add_action(
-//     'doing_it_wrong_run',
-//     static function ($function_name) {
-//         if ('_load_textdomain_just_in_time' === $function_name) {
-//             // JTOC()->log();
-
-//             echo '<pre>';
-//             jtocpre(json_encode(debug_backtrace()));
-//             // print_r($data);
-//             echo '</pre>';
-//         }
-//     }
-// );
 /**
  * pre only if is super admin
  * @param type $data
@@ -226,42 +212,6 @@ if (!function_exists('jtoc_isset_or_zero')) {
         return  isset($var) ? $var : 0;
     }
 }
-
-// if (!function_exists('joli_minify')) {
-//     /**
-//      * Removes line breaks and excessive empty spaces from a string
-//      */
-//     function joli_minify($string)
-//     {
-//         return  preg_replace('/\v(?:[\v\h]+)/', '', $string);
-//     }
-// }
-
-// function minify_html_with_css($html) {
-//     // Minify CSS inside <style> blocks
-//     $html = preg_replace_callback('#<style\b[^>]*>(.*?)</style>#is', function ($matches) {
-//         $css = $matches[1];
-
-//         // Remove comments (/* ... */ only)
-//         $css = preg_replace('#/\*.*?\*/#s', '', $css);
-
-//         // Remove whitespace and format
-//         $css = preg_replace('/\s+/', ' ', $css);                   // collapse whitespace
-//         $css = preg_replace('/\s*([{}:;,])\s*/', '$1', $css);      // trim around delimiters
-//         $css = trim($css);
-
-//         return '<style>' . $css . '</style>';
-//     }, $html);
-
-//     // Minify the HTML
-//     $html = preg_replace('/>\s+</', '><', $html);                 // remove space between tags
-//     $html = preg_replace('/\s{2,}/', ' ', $html);                 // collapse extra spaces
-
-//     // Trim spaces before closing tag brackets: e.g., attr="val" >
-//     $html = preg_replace('/\s+>/', '>', $html);
-
-//     return trim($html);
-// }
 
 
 if (!function_exists('jtoc_is_front')) {

@@ -3,8 +3,8 @@ Contributors: wpjoli
 Donate link: 
 Tags: table of contents,toc,navigation,table of content,page contents
 Requires at least: 5.0
-Tested up to: 6.8
-Stable tag: 2.8.1
+Tested up to: 6.9
+Stable tag: 2.8.2
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -315,6 +315,10 @@ In order to change the color, go to the Settings, then under the Appearance tab,
 15. Settings page - PROGRESS BAR
 
 == Changelog ==
+
+= 2.8.2 
+* WP 6.9 compatibility=
+* Bug fixes
 
 = 2.8.1 =
 * Security fix
