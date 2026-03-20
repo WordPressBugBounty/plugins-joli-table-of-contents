@@ -9,10 +9,11 @@ use WPJoli\JoliTOC\Hooks;
 class Application extends JoliApplication
 {
 
-    const NAME = 'Joli TOC';
+    const NAME = 'Joli Table Of Contents';
+    const NAME_SHORT = 'Joli TOC';
     const SLUG = 'joli_toc';
     const WP_ORG_SLUG = 'joli-table-of-contents';
-    const VERSION = '2.8.2';
+    const VERSION = '3.0.0';
     const SETTINGS_SLUG = 'joli_toc_settings';
     const SETTINGS_V2_SLUG = 'joli_table_of_contents_settings';
     const DOMAIN = 'joli-toc';
@@ -26,13 +27,20 @@ class Application extends JoliApplication
     const CUSTOM_THEMES_PATH = 'joli-table-of-contents/themes';
 
     protected $hooks;
+    // public $scope = 'content';
     public $isProcessingShortcode = false;
     public $isBuildingShortcode = false;
     public $isProcessingMultipage = false;
     public $the_content = null;
     public $the_ID = null;
 
+    public $resourcesLoaded = false;
+
     public $options; 
+
+    public $main_post_id = null;
+
+    public $hasEchoedTimeline = false;
 
     public function __construct()
     {
@@ -47,6 +55,16 @@ class Application extends JoliApplication
         //         );
         //     }
         // );
+        
+        //get the wp upload dir
+        $upload_dir = wp_upload_dir();
+
+        $dir = $upload_dir['basedir'] . "/joli-table-of-contents/";
+        $url = $upload_dir['baseurl'] . "/joli-table-of-contents/";
+
+        //Templaate thumbnail directory
+        define('JOLI_TOC_UPLOADS_PATH', $dir);
+        define('JOLI_TOC_UPLOADS_URL', $url);
         
         $this->log = new Log($this);
     }
@@ -79,5 +97,15 @@ class Application extends JoliApplication
 
     public function deactivate()
     {
+    }
+
+    /**
+     * Check if the current post ID is the main post ID
+     *
+     * @return bool True if the current post ID is the main post ID, false otherwise
+     */
+    public function isMainPost()
+    {
+        return $this->main_post_id !== null && $this->main_post_id === get_the_ID();
     }
 }

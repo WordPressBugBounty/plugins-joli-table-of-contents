@@ -40,17 +40,21 @@ $disabled = ! empty($args['pro']) ? ' disabled' : '';
             class="<?php echo esc_attr($data['classes']); ?>"
             id="joli-css-unit_<?php echo esc_attr($data['option']); ?>"
             name="<?php echo esc_attr($data['name']); ?>"
-            value="<?php echo esc_attr($raw); ?>" />
+            value="<?php echo esc_attr($raw); ?>" 
+            <?php ($data['data_attrs'] ?? null) && call_user_func($data['data_attrs_fn'], $data['data_attrs']); ?>
+            />
 
         <input
             type="text"
             class="joli-css-unit-input"
+            name="joli-css-unit-value_<?php echo esc_attr($data['option']); ?>"
             placeholder="<?php echo esc_attr($data['placeholder']); ?>"
             data-linkedfield="<?php echo esc_attr($data['option']); ?>"
             value="<?php echo esc_attr($text_val); ?>" />
 
         <select
             class="joli-css-unit-values"
+            name="joli-css-unit-unit_<?php echo esc_attr($data['option']); ?>"
             data-linkedfield="<?php echo esc_attr($data['option']); ?>">
             <?php foreach ($items as $id => $label) :
                 $is_pro = in_array($id, $items_pro, true);

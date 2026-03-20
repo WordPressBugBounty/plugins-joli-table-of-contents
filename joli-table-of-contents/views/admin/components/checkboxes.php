@@ -32,13 +32,14 @@ $global_cls  = ! empty($data['is_global']) ? ' joli-is-global' : '';
         $is_pro     = in_array($id, $items_pro, true);
         $pro_cls    = $is_pro ? ' joli-pro' : '';
         $input_id   = 'check_' . $data['name'] . $id;
-        $is_checked = in_array($id, $active_vals, true);
+        $is_checked = in_array($id, $active_vals);
     ?>
         <label class="joli-checkboxes-item<?php echo esc_attr($pro_cls . $global_cls); ?>" for="<?php echo esc_attr($input_id); ?>">
             <input
                 type="checkbox"
                 id="<?php echo esc_attr($input_id); ?>"
                 class="joli-check<?php echo esc_attr($pro_cls); ?>"
+				name="jli-checkboxes-<?php echo esc_attr($data['option']); ?>[]"
                 value="<?php echo esc_attr($id); ?>"
                 data-linked-id="<?php echo esc_attr($field_id); ?>"
                 <?php checked($is_checked); ?>

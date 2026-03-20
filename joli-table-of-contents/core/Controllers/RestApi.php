@@ -40,7 +40,7 @@ class RestApi
     }
 
     public function getTableOfContentsHeadings($request)
-    { 
+    {
         //Check headers and license
         $headers = $request->get_headers();
 
@@ -67,7 +67,11 @@ class RestApi
 
         $toc_builder = new TOCBuilder(null, null, $attr);
 
-        $filtered_content = apply_filters('the_content', $content);
+        $scope = $toc_builder->getScope();
+        
+        $filtered_content = $scope === 'extended' ? apply_filters('the_content', $content) : $content;
+
+        // $filtered_content = apply_filters('the_content', $content);
         $processed = $cp::Process($filtered_content, true, $toc_builder);
 
 

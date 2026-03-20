@@ -24,8 +24,8 @@ $is_global        = ! empty($data['is_global']);
 $disabled         = ($args['pro'] || ($active_post_type && $is_global)) ? ' disabled' : '';
 
 $style_attr = '';
-if (function_exists('jtoc_isset_or_null') && jtoc_isset_or_null($args['style'])) {
-    $style_attr = ' style="' . esc_attr(jtoc_cssify($args['style'])) . '"';
+if ($args['style'] ?? null) {
+    $style_attr = jtoc_attrify(['style' => jtoc_cssify($args['style'])]);
 }
 ?>
 

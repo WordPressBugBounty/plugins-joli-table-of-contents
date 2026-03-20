@@ -1,476 +1,358 @@
-<div class="wrap wpjoli-wrap">
-    <div id="joli-title">
-        <span class="h1-title">Joli Table Of Contents</span>
-        <?php 
-if ( isset( $active_post_type ) && isset( $post_types[$active_post_type] ) ) {
-    ?>
-            <span class="h1-subtitle"><?php 
-    echo esc_html( $post_types[$active_post_type]->label );
-    ?> settings</span>
-        <?php 
-} else {
-    ?>
-            <span class="h1-subtitle">Global settings</span>
-        <?php 
-}
-?>
-    </div>
-    <h1></h1>
-    <?php 
-if ( $js_vars ) {
-    ?>
+<?php
+
+/**
+ * Plugin settings
+ *
+ * @package joli-table-of-contents
+ * 
+ * @var string  $app_id
+ * @var string  $option_group
+ * @var array   $tabs
+ * @var string  $logo_url
+ * @var string  $version
+ * @var string  $pro_url
+ * @var string  $pro_url_v
+ * @var array   $pro_features
+ * @var array   $plugins
+ * @var string  $joli_toc_review_url
+ * @var string  $joli_toc_doc_url
+ * @var string  $joli_toc_doc_post_type_settings_url
+ * @var array   $post_types
+ * @var string  $admin_url
+ * @var string  $jtoc_settings_url
+ * @var string  $active_post_type
+ * @var array   $activated_post_type
+ * @var array   $js_vars
+ * @var array   $posts
+ * @var array   $onboarding
+ */
+
+use WPJoli\JoliTOC\Controllers\Callbacks\SettingsCallbacks;
+
+defined('ABSPATH') or die('Wrong path bro!'); ?>
+
+
+<!-- <h1></h1> -->
+<?php settings_errors(); ?>
+<?php $controller = JTOC()->requestService(SettingsCallbacks::class); ?>
+
+<div id="jli-<?php echo esc_attr($app_id) ?>" class="jli-wrap jli-content-element jli-<?php echo esc_attr($app_id) ?>">
+    <?php if ($js_vars) : ?>
         <script>
-            <?php 
-    foreach ( $js_vars as $var => $data ) {
-        ?>
-                var <?php 
-        echo esc_html( $var );
-        ?> = <?php 
-        echo json_encode( $data );
-        ?>;
-            <?php 
-    }
-    ?>
+            <?php foreach ($js_vars as $var => $data) : ?>
+                var <?php echo esc_html($var) ?> = <?php echo json_encode($data) ?>;
+            <?php endforeach; ?>
         </script>
-    <?php 
-}
-?>
-    <?php 
-if ( $active_post_type ) {
-    ?>
+    <?php endif; ?>
+    <?php if ($active_post_type) : ?>
         <script>
-            var jtoc_active_post_type = "<?php 
-    echo esc_html( $active_post_type );
-    ?>";
+            var jtoc_active_post_type = "<?php echo esc_html($active_post_type) ?>";
         </script>
-    <?php 
-}
-?>
-    <?php 
-if ( jtoc_isset_or_null( $block_json ) ) {
-    // var_dump($block_json);
-}
-?>
-    <?php 
-if ( jtoc_isset_or_null( $block_template ) ) {
-    // pre(esc_html(($block_template)));
-}
-?>
-    <?php 
-settings_errors();
-?>
+    <?php endif; ?>
+    <?php if (jtoc_isset_or_null($block_json)) {
+        // var_dump($block_json);
+    } ?>
+    <?php if (jtoc_isset_or_null($block_template)) {
+        // pre(esc_html(($block_template)));
+    } ?>
 
-    <div class="jtoc-wrap">
 
-        <header class="joli-header-top">
-            <div style="margin-top: 16px;display: flex;justify-content: center;align-items: center;">
-                <button id="jtoc-import-export" class="button button-secondary button-small"><?php 
-esc_html_e( 'Import / export', 'joli-table-of-contents' );
-?></button>
-                <span class="joli-field-info dashicons dashicons-info-outline"></span>
-                <div class="joli-info-bubble" style="z-index:2;text-align:left; min-width: 460px;left: calc(100% + 10px);transform: translateY(-10px);top: 0;">
-                    <p><?php 
-esc_html_e( 'Export current settings to a file.', 'joli-table-of-contents' );
-?></p>
-                    <p><?php 
-esc_html_e( 'If you have mutlitple post type settings, you need to export them one by one.', 'joli-table-of-contents' );
-?></p>
-                    <p><?php 
-esc_html_e( 'Use the export/import module to duplicate a set of settings between post type settings.', 'joli-table-of-contents' );
-?></p>
+    <!-- Presets modal -->
+    <section class="joli-content">
+        <div id="joli-import-preset-wrap" class="joli-modal-overlay" style="display: none;">
+            <div class="joli-modal">
+                <div class="joli-modal-header">
+                    <!-- Modal title -->
+                    <div class="joli-modal-title"><?php esc_html_e('Import preset', 'joli-table-of-contents') ?></div>
+                    <div class="joli-modal-close"> <span class="dashicons dashicons-no-alt" style="padding: 15px; margin: -15px;"></span></div>
                 </div>
-            </div>
-        </header>
-
-        <section class="joli-content">
-            <div id="joli-export-import-wrap" style="display: none;">
-                <div>
-                    <h3><?php 
-esc_html_e( 'Export', 'joli-table-of-contents' );
-?></h3>
-                    <p>
-                        <button id="jtoc-export-settings" class="button button-secondary"><?php 
-esc_html_e( 'Download', 'joli-table-of-contents' );
-?></button>
-                    </p>
-                </div>
-                <div>
-                    <h3><?php 
-esc_html_e( 'Import', 'joli-table-of-contents' );
-?></h3>
-                    <p>
-                        <input type="file" name="jtoc-import-settings-file" id="jtoc-import-settings-file" accept=".json">
-                        <button id="jtoc-import-settings" class="button button-secondary"><?php 
-esc_html_e( 'Upload', 'joli-table-of-contents' );
-?></button>
-                    </p>
-                </div>
-                <div id="joli-export-import-close"><span class="dashicons dashicons-no-alt"></span></div>
-            </div>
-            <!-- Post type settings -->
-            <div class="joli-post-type-tabs">
-                <div class="joli-post-type-tab tab-global<?php 
-echo ( !$active_post_type ? ' --joli-tab-active' : '' );
-?>">
-                    <a id="tab-jtoc-global" class="joli-post-type-tab-item" href="<?php 
-echo esc_url_raw( $jtoc_settings_url );
-?>"><?php 
-esc_html_e( "Global settings", "joli-table-of-contents" );
-?></a>
-                    <span class="joli-field-info dashicons dashicons-info-outline"></span>
-                    <div class="joli-info-bubble" style="z-index:2;text-align:left; min-width: 460px;left: calc(100% + 10px);transform: translateY(-10px);top: 0;">
-                        <p><?php 
-esc_html_e( 'Edit the global settings or create a custom setting set per post type.', 'joli-table-of-contents' );
-?></p>
-                        <p><?php 
-esc_html_e( 'To create specific post type settings, click any post type next to the global settings, edit and save your custom settings.', 'joli-table-of-contents' );
-?></p>
-                        <p><?php 
-esc_html_e( 'Finally, activate the custom post type settings by switching them on with the switch button below each post type.', 'joli-table-of-contents' );
-?></p>
-                        <p><?php 
-esc_html_e( 'Deactivating any custom post type settings will result in using the global settings as a fallback but will not delete the custom settings.', 'joli-table-of-contents' );
-?></p>
+                <div class="joli-modal-body">
+                    <!-- <div>
+                        <h3><?php esc_html_e('Export', 'joli-table-of-contents') ?></h3>
+                        <p>
+                            <button id="joli-export-settings" class="jli-button jli-button-sm"><?php esc_html_e('Download', 'joli-table-of-contents') ?></button>
+                        </p>
+                    </div> -->
+                    <div>
+                        <h3><?php esc_html_e('Import', 'joli-table-of-contents') ?></h3>
+                        <p>
+                            <input type="file" name="joli-import-preset-file" id="joli-import-preset-file" accept=".json">
+                            <button id="joli-import-preset" class="jli-button jli-button-sm"><?php esc_html_e('Upload', 'joli-table-of-contents') ?></button>
+                        </p>
                     </div>
                 </div>
-                <div class="joli-post-type-tab-wrap">
-                    <?php 
-foreach ( $post_types as $pt ) {
-    ?>
-                        <?php 
-    $tab_is_active = $active_post_type == $pt->name;
-    ?>
-                        <?php 
-    $is_activated = in_array( $pt->name, $activated_post_type );
-    ?>
-                        <?php 
-    $pro = jtoc_xy()->can_use_premium_code__premium_only();
-    ?>
-                        <?php 
-    ?>
-                        <div class="joli-post-type-tab<?php 
-    echo ( $tab_is_active ? ' --joli-tab-active' : '' );
-    echo ( !$pro ? ' joli-pro' : '' );
-    ?>">
-                            <?php 
-    ?>
-                                <span id="tab-<?php 
-    echo esc_attr( $pt->name );
-    ?>" class="joli-post-type-tab-item" title="<?php 
-    echo esc_attr( $pt->name );
-    ?>"><?php 
-    echo esc_html( $pt->label );
-    ?></span>
-                            <?php 
-    ?>
+            </div>
+        </div>
+    </section>
+    <!-- /Presets modal -->
 
-                            <label class="joli-switch" for="joli-post-type-activate_<?php 
-    echo esc_attr( $pt->name );
-    ?>">
-                                <input type="checkbox" id="joli-post-type-activate_<?php 
-    echo esc_attr( $pt->name );
-    ?>" <?php 
-    echo ( $is_activated ? ' checked' : '' );
-    echo ( !$pro ? ' disabled' : '' );
-    ?> name="joli-post-type-activate" data-post-type="<?php 
-    echo esc_attr( $pt->name );
-    ?>" class="joli-checkbox joli-post-type-check">
-                                <span class="slider round" title="<?php 
-    esc_html_e( 'Activate settings for this post type', 'joli-table-of-contents' );
-    ?>"></span>
-                            </label>
+    <section class="joli-content">
+        <div id="joli-export-import-wrap" class="joli-modal-overlay" style="display: none;">
+            <div class="joli-modal">
+                <div class="joli-modal-header">
+                    <!-- Modal title -->
+                    <div class="joli-modal-title"><?php esc_html_e('Import / export settings', 'joli-table-of-contents') ?></div>
+                    <div class="joli-modal-close"> <span class="dashicons dashicons-no-alt" style="padding: 15px; margin: -15px;"></span></div>
+                </div>
+                <div class="joli-modal-body">
+                    <div>
+                        <h3><?php esc_html_e('Export', 'joli-table-of-contents') ?></h3>
+                        <p>
+                            <button id="joli-export-settings" class="jli-button jli-button-sm"><?php esc_html_e('Download', 'joli-table-of-contents') ?></button>
+                        </p>
+                    </div>
+                    <div>
+                        <h3><?php esc_html_e('Import', 'joli-table-of-contents') ?></h3>
+                        <p>
+                            <input type="file" name="joli-import-settings-file" id="joli-import-settings-file" accept=".json">
+                            <button id="joli-import-settings" class="jli-button jli-button-sm"><?php esc_html_e('Upload', 'joli-table-of-contents') ?></button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- </div> -->
+    <!-- <div class="jtoc-wrap"> -->
+    <?php if ($active_post_type) : ?>
+        <div style="padding: 8px 16px;background-color: #fafde0;border: 1px solid #d7c100;border-radius: 6px;margin-bottom: 24px;width: calc(100% - 16px);box-sizing: border-box; color: #333;">You are currently editing the settings for the <strong>"<?php echo esc_html($active_post_type) ?>"</strong> post type. When switched on, the settings will apply only to this post type.</div>
+    <?php endif; ?>
+    <div class="jli-main">
+        <div class="jli-main-content">
+            <aside class="joli-nav-menu">
+                <div class="joli-nav">
+                    <!-- Quick settings tab -->
+                    <a id="tab-quick-settings" class="joli-nav-item item-highlight" href="#quick-settings" data-group="quick-settings">
+                        <img class="joli-nav-icon" src="<?php echo esc_attr(JTOC()->url('assets/admin/icons/art.svg')) ?>" alt="" width="24" height="24">
+                        <div class="joli-nav-title"><?php esc_html_e('Quick settings', 'joli-table-of-contents') ?></div>
+                    </a>
+                    <!-- /Quick settings tab -->
+
+                    <?php foreach ($tabs as $id => $data) : ?>
+                        <?php if ($active_post_type && jtoc_isset_or_null($data['args']['post_type_settings']) === false) {
+                            continue;
+                        } ?>
+                        <?php if ($id === 'theme' || $id === 'floating-table-of-contents'): ?>
+                            <hr class="joli-nav-divider">
+                        <?php endif; ?>
+                        <a id="tab-<?php echo esc_attr($id) ?>" class="joli-nav-item" href="#<?php echo esc_attr($id); ?>" data-group="<?php echo esc_attr($id) ?>">
+                            <img class="joli-nav-icon" src="<?php echo esc_attr($data['icon']) ?>" alt="" width="24" height="24">
+                            <div class="joli-nav-title">
+                                <?php echo esc_html($data['label']) ?>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                    <!-- Search results label -->
+                    <div id="jli-search-label" class="joli-is-hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="jli-input-icon">
+                            <path d="m21 21-4.34-4.34"></path>
+                            <circle cx="11" cy="11" r="8"></circle>
+                        </svg>
+                        <?php echo esc_html__('Search results', 'joli-table-of-contents'); ?>
+                    </div>
+                    <!-- /Search results label -->
+                </div>
+            </aside>
+            <div class="joli-content-wrap">
+                <section id="jli-quick-settings" class="joli-content joli-is-hidden">
+                    <form id="jli-plugin-quick-settings" method="post" action="<?php echo esc_url(admin_url('options.php')); ?>">
+                        <div class="tab-content joli-tab-content">
+                            <?php JTOC()->render(
+                                ['admin' => 'settings-quick-settings'],
+                                [
+                                    'controller' => $controller,
+                                    'data' => include JTOC()->path('config/quick_settings.php'),
+                                    'active_post_type' => $active_post_type
+                                ]
+                            ); ?>
                         </div>
-                    <?php 
-}
-?>
-                    <?php 
-if ( (jtoc_xy()->is_free_plan() || count( jtoc_isset_or_zero( $activated_post_type ) ) === 0) && !$active_post_type ) {
-    ?>
-                        <div id="joli-post-type-tabs-overlay">
-                            <div>
-                                <span>Post type settings</span>
-                                <span class="joli-field-info dashicons dashicons-info-outline"></span>
-                                <div class="joli-info-bubble" style="z-index:2;text-align:left;min-width: 460px;left: 0;transform: translateY(-10px);top: 80px;">
-                                    <p><?php 
-    esc_html_e( 'To create specific post type settings, click any post type next to the global settings, edit and save your custom settings.', 'joli-table-of-contents' );
-    ?></p>
-                                    <p><?php 
-    esc_html_e( 'Finally, activate the custom post type settings by switching them on with the switch button below each post type.', 'joli-table-of-contents' );
-    ?></p>
-                                    <p><?php 
-    esc_html_e( 'Deactivating any custom post type settings will result in using the global settings as a fallback but will not delete the custom settings.', 'joli-table-of-contents' );
-    ?></p>
+                    </form>
+                </section>
+
+                <section id="jli-settings-panel" class="joli-content">
+                    <form id="jli-plugin-settings" method="post" action="<?php echo esc_url(admin_url('options.php')); ?>">
+                        <div class="tab-content joli-tab-content">
+                            <div id="tab-settings" class="joli-settings-tab-pane">
+                                <?php
+                                $option_group = JTOC()::SETTINGS_V2_SLUG . ($active_post_type ? '_' . $active_post_type : '');
+                                settings_fields($option_group);
+                                do_settings_sections($option_group);
+                                ?>
+                            </div>
+                        </div>
+                        <!-- <div class="joli-submit">
+                        <div class="joli-save-info">
+                            <div class="joli-info-text"><?php esc_html_e('Changes unsaved', 'joli-table-of-contents'); ?></div>
+                            <?php submit_button(__('Save settings', 'joli-table-of-contents'), 'primary joli-settings-submit', 'submit-float', false); ?>
+                        </div>
+                    </div> -->
+                    </form>
+                    <!-- <form action="<?php echo esc_attr($_SERVER['REQUEST_URI']); ?>" method="post">
+                    <?php wp_nonce_field('jtoc_reset'); ?>
+                    <p>
+                        <input type="submit" id="jtoc_reset_settings" name="jtoc_reset_settings" class="button button-link button-small" value="<?php esc_html_e("Reset settings", "joli-table-of-contents"); ?>" data-prompt="<?php esc_html_e("Are you sure you want to reset settings ? This will apply only to the current post type settings. All current settings will be lost.", "joli-table-of-contents"); ?>">
+                    </p>
+                </form> -->
+                </section>
+                <aside class="joli-sidebar">
+                    <div class="joli-sidebar-content">
+                        <?php if (jtoc_xy()->is_free_plan()) : ?>
+                            <div class="joli-sidebar-item" style="border-color: var(--jtoc-color-pink); border-width: 2px; border-style: solid;">
+                                <div class="joli-gopro-notice">
+                                    <!-- <?php esc_html_e('Want more cool features such as the', 'joli-table-of-contents'); ?> <strong><a target="_blank" href="<?php echo esc_url_raw($pro_url_v); ?>"><?php esc_html_e('Floating Table Of Contents Widget', 'joli-table-of-contents'); ?></strong></a> ? -->
+                                    <h3><span style="font-size: small;">Get more with</span><br>Joli Table of Contents Pro</h3>
+                                    <ul>
+                                        <?php echo implode("\n", array_map(function ($feature) {
+                                            return jtoc_tagify('li', esc_html($feature));
+                                        }, $pro_features)) ?>
+                                    </ul>
+                                    <p>
+                                        <a
+                                            href="<?php echo esc_url_raw(sprintf('%sadmin.php?page=' . JTOC()::SETTINGS_V2_SLUG .  '-pricing', get_admin_url())); ?>"
+                                            class="jli-button jli-button-fuzzy jli-button-md">
+                                            <?php wp_kses(include JTOC()->path('assets/public/icons/sparkles.svg'), jtoc_kses_lucide_svg()); ?>
+                                            <?php esc_html_e('Get Pro', 'joli-table-of-contents'); ?>
+                                        </a>
+                                        <!-- <a
+                                            class="jli-button jli-button-fuzzy jli-button-md"
+                                            href="https://wpjoli.com/joli-table-of-contents"
+                                            target="_blank">
+
+                                            <?php esc_html_e('Upgrade to Pro', 'joli-table-of-contents'); ?>
+                                        </a> -->
+                                    </p>
+
                                 </div>
                             </div>
-                            <button id="joli-post-type-settings-unlock" class="button button-secondary button-small<?php 
-    echo ( !$pro ? ' joli-pro' : '' );
-    ?>" <?php 
-    echo ( !$pro ? ' disabled' : '' );
-    ?>><?php 
-    esc_html_e( 'Unlock', 'joli-table-of-contents' );
-    ?></button>
-                            <a href="<?php 
-    echo esc_url_raw( $joli_toc_doc_post_type_settings_url );
-    ?>" id="joli-post-type-settings-what-is-it" target="_blank"><?php 
-    esc_html_e( 'What is it ?', 'joli-table-of-contents' );
-    ?></a>
-                        </div>
-                    <?php 
-}
-?>
-                </div>
-            </div>
-            <!-- /Post type settings -->
-        </section>
-    </div>
-    <div class="jtoc-wrap">
+                        <?php endif; ?>
 
-        <header class="joli-header">
-            <div class="joli-logo">
-                <a href="https://wpjoli.com" title="WPJoli" target="_blank">
-                    <img src="<?php 
-echo esc_url( $logo_url );
-?>" alt="">
-                </a>
+                        <h2>Our Products</h2>
+
+                        <?php foreach ($plugins as $plugin) : ?>
+                            <div class="joli-sidebar-item<?php echo isset($plugin['highlight']) ? ' --highlight' : '' ?>">
+                                <a class="joli-sidebar-header"
+                                    href="<?php echo esc_url_raw($plugin['url']) ?>"
+                                    target="_blank"
+                                    style="text-decoration: none;">
+                                    <img src="<?php echo esc_url($plugin['thumb']) ?>" alt="" />
+                                    <h3<?php echo isset($plugin['name_style']) ? jtoc_attrify([' style' => jtoc_cssify($plugin['name_style'])]) : '' ?>>
+                                        <?php echo nl2br(esc_html($plugin['name'])) ?>
+                                        <?php if (isset($plugin['highlight'])) : ?>
+                                            <span class="--highlight"><?php echo esc_html($plugin['highlight']) ?></span>
+                                        <?php endif; ?>
+                                        </h3>
+                                </a>
+                                <div class="joli-sidebar-body">
+                                    <p class="joli-plugin-description"><?php echo nl2br(esc_html($plugin['desc'])) ?></p>
+                                    <p>
+                                        <a href="<?php echo esc_url_raw($plugin['url']) ?>" class="button button-secondary" target="_blank"><?php esc_html_e('Find out more', 'joli-table-of-contents'); ?></a>
+                                    </p>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </aside>
             </div>
-            <div class="joli-nav">
-                <?php 
-foreach ( $tabs as $id => $data ) {
-    ?>
-                    <?php 
-    if ( $active_post_type && jtoc_isset_or_null( $data['args']['post_type_settings'] ) === false ) {
-        continue;
-    }
-    ?>
-                    <a id="tab-<?php 
-    echo esc_attr( $id );
-    ?>" class="joli-nav-item" href="#<?php 
-    echo esc_attr( $id );
-    ?>">
-                        <div class="joli-nav-title">
-                            <?php 
-    echo esc_html( $data['label'] );
-    ?>
-                        </div>
-                    </a>
-                <?php 
-}
-?>
-            </div>
-            <div class="joli-version">
-                <div class="joli-submit joli-submit-inline">
-                    <div class="joli-save-info">
-                        <?php 
-submit_button(
-    __( 'Save settings', 'joli-table-of-contents' ),
-    'primary joli-settings-submit joli-do-submit',
-    'submit-menu',
-    false
-);
-?>
-                    </div>
-                </div>
-                <p>v<?php 
-echo esc_html( $version );
-?></p>
-                <?php 
-if ( JTOC_HAS_V1 ) {
-    ?>
-                    <div class="joli-toc-notice-v2" style="text-align:center;">
-                        <button class="button button-link" data-method="go" data-action="v1"><?php 
-    esc_html_e( 'Go back to v1', 'joli-table-of-contents' );
-    ?></button>
-                    </div>
-                <?php 
-}
-?>
-            </div>
-        </header>
-        <section class="joli-content">
-            <form id="jtoc-settings" method="post" action="<?php 
-echo esc_url( admin_url( 'options.php' ) );
-?>">
-                <div class="tab-content joli-tab-content">
-                    <div id="tab-settings" class="joli-settings-tab-pane">
-                        <?php 
-$option_group = JTOC()::SETTINGS_V2_SLUG . (( $active_post_type ? '_' . $active_post_type : '' ));
-settings_fields( $option_group );
-do_settings_sections( $option_group );
-?>
-                    </div>
-                </div>
-                <div class="joli-submit">
-                    <div class="joli-save-info">
-                        <div class="joli-info-text"><?php 
-esc_html_e( 'Changes unsaved', 'joli-table-of-contents' );
-?></div>
-                        <?php 
-submit_button(
-    __( 'Save settings', 'joli-table-of-contents' ),
-    'primary joli-settings-submit',
-    'submit-float',
-    false
-);
-?>
-                    </div>
-                </div>
-            </form>
-            <form action="<?php 
-echo esc_attr( $_SERVER['REQUEST_URI'] );
-?>" method="post">
-                <?php 
-wp_nonce_field( 'jtoc_reset' );
-?>
-                <p>
-                    <input type="submit" id="jtoc_reset_settings" name="jtoc_reset_settings" class="button button-link button-small" value="<?php 
-esc_html_e( "Reset settings", "joli-table-of-contents" );
-?>" data-prompt="<?php 
-esc_html_e( "Are you sure you want to reset settings ? This will apply only to the current post type settings. All current settings will be lost.", "joli-table-of-contents" );
-?>">
-                </p>
-            </form>
-        </section>
-        <aside class="joli-sidebar">
-            <div class="joli-sidebar-content">
-                <?php 
-if ( jtoc_xy()->is_free_plan() ) {
-    ?>
-                    <div class="joli-sidebar-item" style="background: #cafff7;">
-                        <div class="joli-gopro-notice">
-                            <!-- <?php 
-    esc_html_e( 'Want more cool features such as the', 'joli-table-of-contents' );
-    ?> <strong><a target="_blank" href="<?php 
-    echo esc_url_raw( $pro_url_v );
-    ?>"><?php 
-    esc_html_e( 'Floating Table Of Contents Widget', 'joli-table-of-contents' );
-    ?></strong></a> ? -->
-                            <h3><span style="font-size: small;">Get more with</span><br>Joli Table of Contents Pro</h3>
-                            <ul>
-                                <?php 
-    echo implode( "\n", array_map( function ( $feature ) {
-        return jtoc_tagify( 'li', esc_html( $feature ) );
-    }, $pro_features ) );
-    ?>
-                            </ul>
-                            <p>
-                                <a href="<?php 
-    echo esc_url_raw( sprintf( '%sadmin.php?page=' . JTOC()::SETTINGS_V2_SLUG . '-pricing', get_admin_url() ) );
-    ?>" class="button button-primary"><?php 
-    esc_html_e( 'Get Pro now', 'joli-table-of-contents' );
-    ?></a>
-                            </p>
-                        </div>
-                    </div>
-                <?php 
-}
-?>
-                <div class="joli-sidebar-item">
-                    <h3><?php 
-esc_html_e( 'Links', 'joli-table-of-contents' );
-?></h3>
-                    <ul>
-                        <?php 
-if ( jtoc_xy()->is_free_plan() ) {
-    ?>
-                            <li>
-                                <a href="<?php 
-    echo esc_url_raw( $joli_toc_review_url );
-    ?>" target="_blank"><?php 
-    esc_html_e( 'You like the plugin ?', 'joli-table-of-contents' );
-    ?><br><?php 
-    esc_html_e( 'Please rate us ★★★★★ !', 'joli-table-of-contents' );
-    ?></a>
+        </div>
+    </div>
+
+    <!-- Onboarding (must be before the live preview for css rules) -->
+    <section id="jli-onboarding" class="jli-full-fixed">
+        <div class="jli-stepper-body">
+            <div class="jli-stepper jli-editor">
+                <div class="jli-stepper-header">
+                    <ul class="jli-stepper-nav" style="flex-grow: 1;">
+                        <?php foreach ($onboarding['steps'] as $step) : ?>
+                            <?php if ($step['step'] == 0) continue; ?>
+                            <li class="jli-stepper-item" data-step-id="<?php echo esc_attr($step['step']) ?>">
+                                <span class="jli-stepper-circle"><?php echo esc_html($step['step']) ?></span><span class="jli-stepper-label"><?php echo esc_html($step['name']) ?></span>
+                                <?php if (!(isset($step['final']) && $step['final'] == true)) : ?>
+                                    <div class="jli-stepper-line"></div>
+                                <?php endif; ?>
                             </li>
-                        <?php 
-}
-?>
-                        <?php 
-if ( jtoc_xy()->is_premium() ) {
-    ?>
-                            <li>
-                                <a href="<?php 
-    echo esc_url( jtoc_xy()->get_account_url() );
-    ?>" target="_blank"><?php 
-    esc_html_e( 'Account', 'joli-table-of-contents' );
-    ?></a>
-                            </li>
-                            <li>
-                                <a href="<?php 
-    echo esc_url( jtoc_xy()->contact_url() );
-    ?>" target="_blank"><?php 
-    esc_html_e( 'Contact us', 'joli-table-of-contents' );
-    ?></a>
-                            </li>
-                        <?php 
-}
-?>
-                        <li>
-                            <a href="<?php 
-echo esc_url_raw( $joli_toc_doc_url );
-?>" target="_blank"><?php 
-esc_html_e( 'Documentation', 'joli-table-of-contents' );
-?></a>
-                        </li>
+                        <?php endforeach; ?>
                     </ul>
+                    <button id="jli-onboarding-cancel" class="jli-button jli-button-ghost jli-button-md "><?php esc_html_e('Cancel', 'joli-table-of-contents') ?> ✖</button>
                 </div>
+                <!-- Stepper title -->
+                <!-- <div class="jli-stepper-title">
+                    <h2>Get started with Joli Table of Contents</h2>
+                </div> -->
+                <!-- /Stepper title -->
 
-                <h2>Our Products</h2>
+                <div class="jli-stepper-content">
+                    <form id="jli-onboarding-form" method="post">
+                        <?php foreach ($onboarding['steps'] as $step) : ?>
+                            <?php JTOC()->render(['admin/onboarding' => $step['template'] ?? ''], array_merge($step['data'] ?? [], ['controller' => $controller])) ?>
+                        <?php endforeach; ?>
+                    </form>
 
-                <?php 
-foreach ( $plugins as $plugin ) {
-    ?>
-                    <div class="joli-sidebar-item<?php 
-    echo ( isset( $plugin['highlight'] ) ? ' --highlight' : '' );
-    ?>">
-                        <a class="joli-sidebar-header"
-                            href="<?php 
-    echo esc_url_raw( $plugin['url'] );
-    ?>"
-                            target="_blank"
-                            style="text-decoration: none;">
-                            <img src="<?php 
-    echo esc_url( $plugin['thumb'] );
-    ?>" alt="" />
-                            <h3<?php 
-    echo ( isset( $plugin['name_style'] ) ? jtoc_attrify( [
-        ' style' => jtoc_cssify( $plugin['name_style'] ),
-    ] ) : '' );
-    ?>>
-                                <?php 
-    echo nl2br( esc_html( $plugin['name'] ) );
-    ?>
-                                <?php 
-    if ( isset( $plugin['highlight'] ) ) {
-        ?>
-                                    <span class="--highlight"><?php 
-        echo esc_html( $plugin['highlight'] );
-        ?></span>
-                                <?php 
-    }
-    ?>
-                            </h3>
-                        </a>
-                        <div class="joli-sidebar-body">
-                            <p class="joli-plugin-description"><?php 
-    echo nl2br( esc_html( $plugin['desc'] ) );
-    ?></p>
-                            <p>
-                                <a href="<?php 
-    echo esc_url_raw( $plugin['url'] );
-    ?>" class="button button-secondary" target="_blank"><?php 
-    esc_html_e( 'Find out more', 'joli-table-of-contents' );
-    ?></a>
-                            </p>
-                        </div>
+                    <div class="jli-stepper-controls">
+                        <button id="jli-onboarding-back" class="jli-step-prev jli-button jli-button-md " disabled="true">← <?php esc_html_e('Back', 'joli-table-of-contents') ?></button>
+                        <!-- <span class="jli-stepper-info">You can change the styles and adjust the fields later.</span> -->
+                        <button id="jli-onboarding-next" class="jli-step-next jli-button jli-button-md "><?php esc_html_e('Next', 'joli-table-of-contents') ?> →</button>
                     </div>
-                <?php 
-}
-?>
+                </div>
             </div>
-        </aside>
+        </div>
+        
+    </section>
+    <!-- /Onboarding -->
+
+    <!-- Live preview -->
+    <section id="jtoc-live-preview">
+        <div class="jtoc-live-preview-wrap">
+            <div id="jli-live-preview-spinner" class="joli-loader joli-loader-dark"></div>
+            <header class="jtoc-live-preview-header jli-flex jli-items-center jli-gap-1 jli-justify-between">
+                <h3 style="margin-left: 16px;"><?php esc_html_e('Live preview', 'joli-table-of-contents') ?></h3>
+                <div id="jtoc-live-preview-close"><span class="dashicons dashicons-no-alt"></span></div>
+            </header>
+            <div id="live-preview-toggle"><?php esc_html_e('Live preview', 'joli-table-of-contents') ?></div>
+            <div class="jtoc-live-preview-inner jli-flex jli-flex-col">
+                <!-- Post selection -->
+                <div class="jli-box-border jli-w-full jli-px-4">
+                    <select id="jtoc-live-preview-select-post" class="jli-w-full jli-my-3">
+                        <option value="" disabled>- <?php esc_html_e('Select a post to preview', 'joli-table-of-contents') ?> -</option>
+                        <?php $first = true;
+                        foreach ($posts as $post) : ?>
+                            <option value="<?php echo esc_attr($post->ID) ?>" <?php echo $first ? 'selected' : '' ?>><?php echo esc_html($post->post_title) ?></option>
+                        <?php $first = false;
+                        endforeach; ?>
+                    </select>
+                </div>
+                <!-- /Post selection -->
+
+                <div class="jli-flex-1" style="min-height: 0;overflow-y: auto;">
+                    <iframe
+                        src="<?php echo esc_url_raw(get_permalink($posts[0]->ID)); ?>/?joli_toc_preview=1&joli_toc_token=<?php echo esc_attr(wp_generate_uuid4()); ?>"
+                        id="jtoc-preview-iframe">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /Live preview -->
+
+    <!--  -->
+    <!-- <section id="jli-theme-settings" class="joli-content joli-is-hidden"> -->
+    <!-- <section id="jli-theme-settings" class="joli-content">
+        <form id="jli-plugin-theme-settings" method="post" action="<?php echo esc_url(admin_url('options.php')); ?>">
+            <div class="tab-content joli-tab-content">
+                <?php /* JTOC()->render(
+                    ['admin' => 'settings-themes'],
+                    [
+                        'controller' => $controller,
+                        'data' => include JTOC()->path('config/theme_settings.php'),
+                        'active_post_type' => $active_post_type
+                    ]
+                ); */ ?>
+            </div>
+        </form>
+    </section> -->
+
+    <div id="jli-saving-overlay" class="jli-overlay jli-flex jli-items-center jli-justify-center joli-is-hidden">
+        <div id="jli-save-spinner" class="joli-loader"></div>
+        <!-- <div id="jli-save-spinner" class="spinner"></div> -->
     </div>
-    <div id="jtoc-save-spinner" class="spinner"></div>
-    <div id="jtoc-save-alert" class="joli-is-hidden"><?php 
-esc_html_e( 'Settings saved !', 'joli-table-of-contents' );
-?></div>
+    <div id="jli-save-alert" class="joli-is-hidden"><?php esc_html_e('Settings saved !', 'joli-table-of-contents') ?></div>
 </div>

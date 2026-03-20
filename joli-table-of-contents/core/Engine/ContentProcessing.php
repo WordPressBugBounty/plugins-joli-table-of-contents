@@ -17,6 +17,20 @@ use WPJoli\JoliTOC\Engine\TOCBuilder;
 use WPJoli\JoliTOC\Engine\HTMLParser;
 class ContentProcessing {
     /**
+     * Estimates reading time in minutes from HTML content
+     *
+     * @param string $content Raw HTML content
+     * @param int $wpm Words per minute (default: 200)
+     * @return int Estimated reading time in minutes (minimum 1)
+     */
+    private static function estimateReadingTime( $content, $wpm = 200 ) {
+        $text = wp_strip_all_tags( $content );
+        $word_count = str_word_count( $text );
+        $minutes = (int) ceil( $word_count / $wpm );
+        return max( 1, $minutes );
+    }
+
+    /**
      * Reads the actual HTML content from a post and processes the titles
      *
      * @param [string] $content HTML content from 'the_content' hook
@@ -35,13 +49,37 @@ class ContentProcessing {
         $parser = Application::instance()->requestService( HTMLParser::class );
         // $parser->setMode(2);
         $html = $parser->parse( $content );
+        // if ($post->ID == 1) {
+        //     // print call stack to the log ( only the function calls and the files)
+        //     $call_stack = debug_backtrace();
+        //     // prune the call stack to function calls files
+        //     $pruned_call_stack = [];
+        //     foreach ($call_stack as $call) {
+        //         if (isset($call['file'])) {
+        //             $pruned_call_stack[] = $call['file'];
+        //         }
+        //     }
+        //     $fn_calls = [];
+        //     foreach ($call_stack as $call) {
+        //         if (isset($call['function'])) {
+        //             $fn_calls[] = $call['function'];
+        //         }
+        //     }
+        //     // JTOC()->log('call stack: ' . print_r($pruned_call_stack, true));
+        //     JTOC()->log('call stack: ' . print_r($fn_calls, true));
+        // }
         if ( $html === false ) {
             return [
-                'content'  => $content,
-                'headings' => null,
+                'content'      => $content,
+                'headings'     => null,
+                'reading_time' => -1,
             ];
         }
         $headings = [];
+        // Since 3.0.0
+        $should_calc_reading_time = (bool) $toc_builder->getOption( 'show_reading_time' );
+        $words_per_minute = min( max( (int) apply_filters( 'joli_toc_reading_time_wpm', 200 ), 10 ), 1000 );
+        $reading_time = ( $should_calc_reading_time ? self::estimateReadingTime( $content, $words_per_minute ) : -1 );
         if ( $html ) {
             //$depth_option = jtoc_get_option('title-depth', 'general');
             // $depth_option = apply_filters( 'joli-toc-title-depth', jtoc_get_option('title-depth', 'general'));
@@ -67,6 +105,11 @@ class ContentProcessing {
                 // $hash_format = jtoc_get_option('hash-format', 'headings-hash');
                 if ( $toc_builder !== null ) {
                     $hash_format = $toc_builder->getOption( 'hash_format' );
+                    // since 3.0.0
+                    $hash_separator = $toc_builder->getOption( 'hash_separator' );
+                    if ( $hash_separator ) {
+                        $delimiter = $hash_separator;
+                    }
                     // JTOC()->log($hash_format);
                 }
                 $args = [
@@ -188,7 +231,10 @@ class ContentProcessing {
                         $total_pages = count( $paged_content );
                         for ($i = 0; $i < $total_pages; $i++) {
                             JTOC()->isProcessingMultipage = true;
-                            $filtered_content = apply_filters( 'the_content', $paged_content[$i] );
+                            $scope = $toc_builder->getScope();
+                            $scannable_content = ( $scope === 'extended' ? apply_filters( 'the_content', $paged_content[$i] ) : $paged_content[$i] );
+                            $filtered_content = apply_filters( 'the_content', $scannable_content );
+                            // $filtered_content = apply_filters('the_content', $paged_content[$i]);
                             JTOC()->isProcessingMultipage = false;
                             // $filtered_content = $paged_content[$i];
                             $paged_processed = ContentProcessing::Process( $filtered_content, true, $toc_builder );
@@ -210,20 +256,23 @@ class ContentProcessing {
                     //     'headings' => $headings,
                     // ], true));
                     return [
-                        'content'  => $output,
-                        'headings' => $headings,
+                        'content'      => $output,
+                        'headings'     => $headings,
+                        'reading_time' => $reading_time,
                     ];
                 }
-                //headings onlu
+                //headings only
                 return [
-                    'content'  => $content,
-                    'headings' => $headings,
+                    'content'      => $content,
+                    'headings'     => $headings,
+                    'reading_time' => $reading_time,
                 ];
             }
         }
         return [
-            'content'  => $content,
-            'headings' => null,
+            'content'      => $content,
+            'headings'     => null,
+            'reading_time' => $reading_time,
         ];
     }
 

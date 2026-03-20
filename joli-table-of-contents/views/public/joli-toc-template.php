@@ -13,6 +13,7 @@ $toc_inline_styles_str = $toc_inline_styles ? jtoc_attrify(['style' => $toc_inli
 ?>
 <?php if ($has_custom_styles) : ?>
   <?php ob_start(); ?>
+    <?php if ($css) : ?><?php echo wp_strip_all_tags($css) ?><?php endif; ?>
   <?php if ($toc_styles_root) : ?>
     :root {
       <?php echo wp_strip_all_tags($toc_styles_root) ?>
@@ -34,15 +35,25 @@ $toc_inline_styles_str = $toc_inline_styles ? jtoc_attrify(['style' => $toc_inli
 <?php endif; ?>
 
 <?php if ($all_styles) : ?>
-<style>
-  <?php echo wp_strip_all_tags($all_styles) ?>
-</style>
+    <?php
+    // wp_register_style('wpjoli-joli-tocv2-inline-styles', false);
+    // wp_enqueue_style('wpjoli-joli-tocv2-inline-styles');
+    // wp_add_inline_style('wpjoli-joli-tocv2-inline-styles', wp_strip_all_tags($all_styles));
+
+    if (! wp_style_is('wpjoli-joli-tocv2-inline-styles', 'enqueued')) {
+        wp_register_style('wpjoli-joli-tocv2-inline-styles', false);
+        wp_enqueue_style('wpjoli-joli-tocv2-inline-styles');
+        wp_add_inline_style('wpjoli-joli-tocv2-inline-styles', wp_strip_all_tags($all_styles));
+    }
+
+    ?>
 <?php endif; ?>
 
 <?php do_action('joli_toc_before_table_of_contents', $data); ?>
 <div id="wpj-jtoc" class="wpj-jtoc wpj-jtoc--main<?php echo $in_the_content ?><?php echo $toc_wrapper_shared_classes ?><?php echo $toc_wrapper_main_classes ?><?php echo $hidden_main_toc ?>" <?php echo $toc_style ?>>
   <!-- TOC -->
-  <div class="wpj-jtoc--toc<?php echo esc_attr($toc_classes) ?><?php echo esc_attr($is_hidden_class) ?>" <?php echo $toc_inline_styles_str ?>>
+    <?php do_action('joli_toc_before_toc', $data); ?>
+    <div class="wpj-jtoc--toc wpj-jtoc--toc-inline<?php echo esc_attr($toc_classes) ?><?php echo esc_attr($is_hidden_class) ?>" <?php echo $toc_inline_styles_str ?>>
     <?php do_action('joli_toc_before_header', $data); ?>
     <?php if ($show_header) : ?>
       <div class="wpj-jtoc--header">
@@ -96,5 +107,6 @@ $toc_inline_styles_str = $toc_inline_styles ? jtoc_attrify(['style' => $toc_inli
     </div>
     <?php do_action('joli_toc_after_body', $data); ?>
   </div>
+    <?php do_action('joli_toc_after_toc', $data); ?>
 </div>
 <?php do_action('joli_toc_after_table_of_contents', $data); ?>

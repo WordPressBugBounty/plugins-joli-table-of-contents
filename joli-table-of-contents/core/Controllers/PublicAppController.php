@@ -37,7 +37,16 @@ class PublicAppController {
             $widget_support = true;
         }
         $auto_insert_check = $this->isPostValid( null );
+        if ( jtoc_is_preview() ) {
+            // forces the auto-insert for previews
+            $auto_insert_check = true;
+        }
         if ( is_a( $post, 'WP_Post' ) && ($has_shortcode_or_block || ($auto_insert_check || $widget_support)) ) {
+            // JTOC()->log('Enqueuing resources');
+            // since 3.0: load settings when resources are loaded
+            JTOC()->resourcesLoaded = true;
+            $settings = JTOC()->requestService( SettingsController::class );
+            $settings->initialize();
             if ( !apply_filters( 'joli_toc_disable_styles', false ) ) {
                 wp_enqueue_style(
                     'wpjoli-joli-tocv2-styles',
@@ -61,17 +70,21 @@ class PublicAppController {
     }
 
     public function joliTocFilterTheContent( $content ) {
-        // JTOC()->log(get_the_content());
         // if ($this->isProcessing) {
         //     return $content;
         // }
+        // JTOC()->log('joliTocFilterTheContent: ' . substr($content, 0, 256));
+        // Since 3.0
+        if ( JTOC()->isMainPost() !== true ) {
+            return $content;
+        }
         if ( JTOC()->isBuildingShortcode || JTOC()->isProcessingMultipage ) {
             return $content;
         }
-        global $post;
         if ( !jtoc_is_front() ) {
             return $content;
         }
+        global $post;
         //post check
         if ( !is_single( $post ) && !is_page( $post ) ) {
             return $content;
@@ -108,33 +121,77 @@ class PublicAppController {
             $widget_support = true;
         }
         $auto_insert_check = $this->isPostValid( $post_settings );
+        // Since 3.0
+        $is_preview = jtoc_is_preview();
+        if ( $is_preview ) {
+            // forces the auto-insert for previews
+            $auto_insert_check = true;
+        }
         if ( !$auto_insert_check && $widget_support !== true ) {
             return $content;
         }
         // //Processes all shortcodes within the content
         // $this->isProcessing = true;
         // $this->isProcessing = false;
+        $scope = $this->tocBuilder->getScope();
         $processed = ContentProcessing::Process(
             $content,
             false,
             $this->tocBuilder,
             jtoc_get_multipaged_content()
         );
+        $processed_headings = [];
+        $final_headings = [];
+        if ( $scope === 'content' ) {
+            global $post;
+            $processed_headings = ContentProcessing::Process(
+                $post->post_content,
+                true,
+                $this->tocBuilder,
+                jtoc_get_multipaged_content()
+            );
+        }
         if ( $widget_support && !$auto_insert_check ) {
             return $processed['content'];
         }
+        if ( $is_preview && count( $processed['headings'] ) <= 3 ) {
+            // Forces the injection of some random headings if the article could not generate any
+            $processed['headings'] = (include JTOC()->path( 'views/admin/headings-lipsum.php' ));
+            $final_headings = $processed['headings'];
+        } else {
+            if ( $scope === 'extended' ) {
+                $final_headings = $processed['headings'];
+            } else {
+                // 'content
+                $final_headings = $processed_headings['headings'];
+            }
+        }
+        // if ($post->ID == 140) {
+        // JTOC()->log($final_headings);
+        // }
         //$post_toc_options = get_post_meta....
-        $this->tocBuilder->setHeadings( $processed['headings'] );
+        $this->tocBuilder->setHeadings( $final_headings );
         $this->tocBuilder->setContent( $processed['content'] );
+        $this->tocBuilder->setReadingTime( $processed['reading_time'] );
+        // JTOC()->log(print_r($this->tocBuilder, true));
         // if shortcode used or post not eligible, return content with anchored headings
         // if ($has_shortcode) {
         //     return $processed['content'];
         // }
         //builds the actual toc
-        if ( $processed['headings'] ) {
-            $rendered_toc = $this->tocBuilder->makeTOC();
-            // $rendered_toc = TableOfContents::makeTOC( $processed['headings'] );
+        if ( $final_headings && $is_preview ) {
+            $rendered_toc = $this->tocBuilder->makeTOC( $final_headings );
+        } else {
+            if ( $final_headings ) {
+                if ( $scope === 'content' ) {
+                    $rendered_toc = $this->tocBuilder->makeTOC( $final_headings );
+                } else {
+                    $rendered_toc = $this->tocBuilder->makeTOC();
+                }
+                // $rendered_toc = TableOfContents::makeTOC( $processed['headings'] );
+            }
         }
+        // JTOC()->log(substr($rendered_toc, 0, 300));
         // $placement = jtoc_get_option('position-auto', 'auto-insert');
         $placement = $this->tocBuilder->getOption( 'position_auto' );
         if ( isset( $rendered_toc ) ) {
@@ -250,14 +307,47 @@ class PublicAppController {
             // @$toc->loadHTML('<html><body>' . mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8') . '</body></html>', LIBXML_HTML_NODEFDTD);
             libxml_use_internal_errors( false );
             // $tag_text = new DOMText( $tag_to_find->textContent );
-            if ( $after === false ) {
-                //inserts content before the tag
-                $tag_to_find->parentNode->insertBefore( $parsed_html->importNode( $toc->documentElement, true ), $tag_to_find );
+            // At this stage, the structure should be <div id="wpjoli-jtoc--cp-content-wrapper">
+            //                                           <div class="child1">...</div>
+            //                                           <div class="child2">...</div>
+            //                                           <div class="child3">...</div>
+            //                                       </div>
+            $toc_no_html_wrap = $parser->unwrapTOCNode( $toc );
+            // If it failed to unwrap (because using v1 mode), it returns the original node
+            // Check if the root element has the ID 'wpjoli-jtoc--cp-content-wrapper'
+            $has_jtoc_content_wrap_id = $toc_no_html_wrap->hasAttribute( 'id' ) && $toc_no_html_wrap->getAttribute( 'id' ) === HTMLParser::CONTENT_WRAP_HTML_ID;
+            // JTOC()->log($has_jtoc_content_wrap_id);
+            // v1 way of inserting
+            if ( !$has_jtoc_content_wrap_id ) {
+                if ( $after === false ) {
+                    //inserts content before the tag
+                    $tag_to_find->parentNode->insertBefore( $parsed_html->importNode( $toc->documentElement, true ), $tag_to_find );
+                } else {
+                    //inserts content after the tag
+                    $tag_to_find->parentNode->insertBefore( $parsed_html->importNode( $toc->documentElement, true ), $tag_to_find->nextSibling );
+                    // $inserted = $tag_to_find->outertext . $content;
+                }
             } else {
-                //inserts content after the tag
-                $tag_to_find->parentNode->insertBefore( $parsed_html->importNode( $toc->documentElement, true ), $tag_to_find->nextSibling );
-                // $inserted = $tag_to_find->outertext . $content;
+                if ( $after === false ) {
+                    foreach ( $toc_no_html_wrap->childNodes as $child ) {
+                        $imported = $parsed_html->importNode( $child, true );
+                        $tag_to_find->parentNode->insertBefore( $imported, $tag_to_find );
+                    }
+                } else {
+                    foreach ( $toc_no_html_wrap->childNodes as $child ) {
+                        $imported = $parsed_html->importNode( $child, true );
+                        $tag_to_find->parentNode->insertBefore( $imported, $tag_to_find->nextSibling );
+                    }
+                }
             }
+            // if ($after === false) {
+            //     //inserts content before the tag
+            //     $tag_to_find->parentNode->insertBefore($parsed_html->importNode($toc_no_html_wrap, true), $tag_to_find);
+            // } else {
+            //     //inserts content after the tag
+            //     $tag_to_find->parentNode->insertBefore($parsed_html->importNode($toc_no_html_wrap, true), $tag_to_find->nextSibling);
+            //     // $inserted = $tag_to_find->outertext . $content;
+            // }
             // $output = $parsed_html->saveHTML();
             $output = $parser->getHTML( $parsed_html );
             // $output = jtoc_save_html_no_wrapping($parsed_html);

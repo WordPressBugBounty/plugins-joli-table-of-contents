@@ -1,0 +1,1 @@
+.wpj-jtoc.--jtoc-num-single .wpj-jtoc--item-content .jtoc--num:before{content:counter(jolicpt,var(--jtoc-numeration-type,decimal)) var(--jtoc-numeration-suffix,"")}

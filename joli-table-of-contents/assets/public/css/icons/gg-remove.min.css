@@ -1,0 +1,1 @@
+.gg-remove{position:relative;transform:scale(var(--ggs,1));width:22px;height:22px;border:2px solid;border-radius:22px}.gg-remove,.gg-remove:before{box-sizing:border-box;display:block}.gg-remove:before{content:"";position:absolute;width:10px;height:2px;background:currentColor;border-radius:5px;top:8px;left:4px}

@@ -18,6 +18,7 @@ function JTOC()
     return WPJoli\JoliTOC\Application::instance();
 }
 
+// error_log($_SERVER['REQUEST_URI']);
 //Custom toggle icons---
 // add_filter('joli_toc_expand_str', function(){ return '<i class="fa fa-angle-down"></i>';});
 // add_filter('joli_toc_collapse_str', function(){ return '<i class="fa fa-times"></i>';});
@@ -31,6 +32,19 @@ if (!function_exists('jtocpre')) {
     }
 }
 
+// add_action(
+//     'doing_it_wrong_run',
+//     static function ($function_name) {
+//         if ('_load_textdomain_just_in_time' === $function_name) {
+//             // JTOC()->log();
+
+//             echo '<pre>';
+//             jtocpre(json_encode(debug_backtrace()));
+//             // print_r($data);
+//             echo '</pre>';
+//         }
+//     }
+// );
 /**
  * pre only if is super admin
  * @param type $data
@@ -213,6 +227,42 @@ if (!function_exists('jtoc_isset_or_zero')) {
     }
 }
 
+// if (!function_exists('joli_minify')) {
+//     /**
+//      * Removes line breaks and excessive empty spaces from a string
+//      */
+//     function joli_minify($string)
+//     {
+//         return  preg_replace('/\v(?:[\v\h]+)/', '', $string);
+//     }
+// }
+
+// function minify_html_with_css($html) {
+//     // Minify CSS inside <style> blocks
+//     $html = preg_replace_callback('#<style\b[^>]*>(.*?)</style>#is', function ($matches) {
+//         $css = $matches[1];
+
+//         // Remove comments (/* ... */ only)
+//         $css = preg_replace('#/\*.*?\*/#s', '', $css);
+
+//         // Remove whitespace and format
+//         $css = preg_replace('/\s+/', ' ', $css);                   // collapse whitespace
+//         $css = preg_replace('/\s*([{}:;,])\s*/', '$1', $css);      // trim around delimiters
+//         $css = trim($css);
+
+//         return '<style>' . $css . '</style>';
+//     }, $html);
+
+//     // Minify the HTML
+//     $html = preg_replace('/>\s+</', '><', $html);                 // remove space between tags
+//     $html = preg_replace('/\s{2,}/', ' ', $html);                 // collapse extra spaces
+
+//     // Trim spaces before closing tag brackets: e.g., attr="val" >
+//     $html = preg_replace('/\s+>/', '>', $html);
+
+//     return trim($html);
+// }
+
 
 if (!function_exists('jtoc_is_front')) {
     function jtoc_is_front()
@@ -304,6 +354,11 @@ if (!function_exists('jtoc_get_unit_value')) {
             }
         }
 
+        // Empty value, do not process
+        if (strpos($string, '|') === 0) {
+            return false;
+        }
+
         if (strpos($string, '|') >= 0) {
             $string = str_replace('|', '', $string);
 
@@ -316,10 +371,21 @@ if (!function_exists('jtoc_get_unit_value')) {
 }
 
 if (!function_exists('jtoc_get_dimensions_value')) {
-    /**
-     * Returns the first sub_array from an array matching $key and $value
-     */
-    function jtoc_get_dimensions_value($array, $type = null)
+    
+
+/**
+ * Returns a string representation of a dimension value
+ * The dimension value is expected to be an associative array with the following keys:
+ * - dim: An associative array with the following keys: top, right, bottom, left
+ * - unit: A string representing the unit of measurement (e.g. 'px', '%')
+ * If the dimension value is invalid, the function will return false
+ * @param array $array The dimension value
+ * @param string|null $type The type of dimension (e.g. 'corner')
+ * @param mixed|null &$x The x value of the dimension
+ * @param mixed|null &$y The y value of the dimension
+ * @return string|false A string representation of the dimension value, or false if the dimension value is invalid
+ */
+    function jtoc_get_dimensions_value($array, $type = null, &$x = null, &$y = null)
     {
         $dim = jtoc_isset_or_null($array['dim']);
         $unit = jtoc_isset_or_null($array['unit']);
@@ -338,6 +404,16 @@ if (!function_exists('jtoc_get_dimensions_value')) {
         $bottom = jtoc_isset_or_null($array['dim'][$offset3]);
         $left = jtoc_isset_or_null($array['dim'][$offset4]);
         // JTOC()->log($top);
+
+        // If top and bottom are the same
+        if ($top === $bottom) {
+            $x = $top . $unit;
+        }
+
+        // If left and right are the same
+        if ($left === $right) {
+            $y = $left . $unit;
+        }
 
         //if 4 values are the same
         if (($top === $right) && ($top === $bottom) && ($top === $left)) {
@@ -655,5 +731,12 @@ if (!function_exists('jtoc_kses_lucide_svg')) {
         );
         return  $svg_args;
         // return array_merge( $kses_defaults, $svg_args );
+    }
+}
+
+if (!function_exists('jtoc_is_preview')) {
+    function jtoc_is_preview()
+    {
+        return isset($_GET['joli_toc_preview'], $_GET['joli_toc_token']);
     }
 }

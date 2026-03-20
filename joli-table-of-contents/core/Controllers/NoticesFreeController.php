@@ -74,7 +74,7 @@ class NoticesFreeController
                 
                 if (! $time ) {
 
-                    $this->options->set('rating_time', time() + DAY_IN_SECONDS);
+                    $this->options->set('rating_time', time() + DAY_IN_SECONDS, true);
                     $this->can_display_rating = false;
 
                 } else {
@@ -105,7 +105,7 @@ class NoticesFreeController
                 
                 if (! $time ) {
 
-                    $this->options->set('gopro_time', time() + WEEK_IN_SECONDS );
+                    $this->options->set('gopro_time', time() + WEEK_IN_SECONDS, true);
                     $this->can_display_gopro = false;
 
                 } else {
@@ -152,17 +152,17 @@ class NoticesFreeController
 
     public function clickedReview()
     {
-        $this->options->set('rating_time', time() + YEAR_IN_SECONDS * 10 );
+        $this->options->set('rating_time', time() + YEAR_IN_SECONDS * 10, true );
     }
 
     public function remindLater()
     {
-        $this->options->set('rating_time', time() + WEEK_IN_SECONDS );
+        $this->options->set('rating_time', time() + WEEK_IN_SECONDS, true );
     }
 
     public function dismissNotice($notice_id)
     {
-        $this->options->set($notice_id .'_time', time() + YEAR_IN_SECONDS * 3);
+        $this->options->set($notice_id .'_time', time() + YEAR_IN_SECONDS * 3, true);
     }
 
 }

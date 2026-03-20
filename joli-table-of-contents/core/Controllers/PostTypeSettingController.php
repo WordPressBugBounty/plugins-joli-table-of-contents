@@ -28,7 +28,11 @@ class PostTypeSettingController
     {
         check_ajax_referer(JTOC()::SLUG, 'nonce');
 
-        $value = sanitize_key(jtoc_isset_or_null($_POST['active_post_type']));
+        $value = jtoc_isset_or_null($_POST['active_post_type']); // $_POST['active_post_type'] is of type array, each element should be sanitized with sanitize_key
+
+        if (is_array($value)) {
+            $value = array_map('sanitize_key', $value);
+        }
 
         if ($value !== null || $value !== false) {
             $update = $this->options->set('active_setting_post_types', $value);

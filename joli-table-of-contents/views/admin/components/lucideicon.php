@@ -13,12 +13,13 @@
 if (! defined('ABSPATH')) {
     exit;
 }
-
+// jtocpre($args);
 $color        = ! empty($data['value']['color']) ? $data['value']['color'] : 'currentColor';
 $pro_partial  = jtoc_isset_or_null($args['pro_partial']);
 $control_class = $pro_partial ? 'joli-control joli-pro' : 'joli-control';
+$label = jtoc_isset_or_null($args['label']) ?? __('Icon', 'joli-table-of-contents');
 ?>
-<div id="<?php echo esc_attr($data['option']); ?>" class="<?php echo esc_attr($data['classes']); ?> joli-lucide-picker">
+<div id="<?php echo esc_attr($data['option']); ?>" class="<?php echo esc_attr($data['classes'] ?? ''); ?> joli-lucide-picker">
 
     <style>
         #<?php echo esc_attr($data['option']) . ' .joli-lucide-icon .lucide' ?> {
@@ -30,7 +31,8 @@ $control_class = $pro_partial ? 'joli-control joli-pro' : 'joli-control';
         }
     </style>
 
-    <fieldset class="joli-fieldset" <?php echo $pro_partial ? 'disabled' : ''; ?>>
+    <fieldset class="joli-fieldset<?php if (jtoc_isset_or_null($args['compact']) === true): ?> joli-is-hidden<?php endif; ?>" <?php echo $pro_partial ? 'disabled' : ''; ?>
+        <?php ($data['data_attrs'] ?? null) && call_user_func($data['data_attrs_fn'], $data['data_attrs']); ?>>
         <div class="joli-lucide-picker--header">
 
             <div class="<?php echo esc_attr($control_class); ?>">
@@ -73,7 +75,7 @@ $control_class = $pro_partial ? 'joli-control joli-pro' : 'joli-control';
             </div>
 
             <?php if ($pro_partial): ?>
-                <div style="display:flex;align-items:center;font-weight:bold;">
+                <div style="display:flex;align-items:center;font-weight:600;position: absolute;top: 30px;right: 50px; color: var(--jtoc-color-pink-dark);">
                     <?php esc_html_e('Customize icons with Pro', 'joli-table-of-contents'); ?>
                 </div>
             <?php endif; ?>
@@ -88,21 +90,21 @@ $control_class = $pro_partial ? 'joli-control joli-pro' : 'joli-control';
 
     <div style="margin-bottom:1em;">
         <div class="joli-control">
-            <label><?php esc_html_e('Icon', 'joli-table-of-contents'); ?></label>
+            <label><?php echo esc_html($label); ?></label>
             <div>
                 <button
                     id="<?php echo esc_attr($data['option']); ?>--toggle"
                     type="button"
                     class="joli-btn joli-lucide-picker--toggle">
                     <div class="joli-lucide-icon">
-                        <?php echo wp_kses( $selected_icon, jtoc_kses_lucide_svg() ); ?>
+                        <?php echo wp_kses($selected_icon, jtoc_kses_lucide_svg()); ?>
                     </div>
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="joli-lucide-picker--body">
+    <div class="joli-lucide-picker--body<?php if (jtoc_isset_or_null($args['compact']) === true): ?> --compact<?php endif; ?>">
         <?php foreach ($options as $opt): ?>
             <label class="joli-radio-icon<?php echo esc_attr($opt['pro_class']); ?>" for="radio_<?php echo esc_attr($opt['id']); ?>" data-icon-src="<?php echo esc_url($opt['icon_url']); ?>">
                 <input
@@ -113,7 +115,7 @@ $control_class = $pro_partial ? 'joli-control joli-pro' : 'joli-control';
                     value="<?php echo esc_attr($opt['value']); ?>"
                     <?php checked($opt['checked']); ?>
                     <?php echo $opt['disabled'] ? 'disabled' : ''; ?> />
-                <div class="joli-lucide-icon">
+                <div class="joli-lucide-icon" data-icon="<?php echo esc_attr($opt['value']); ?>">
                     <?php echo wp_kses($opt['icon_svg'], jtoc_kses_lucide_svg()); ?>
                 </div>
             </label>

@@ -40,7 +40,7 @@ if ( !function_exists( 'jtoc_fs_file' ) ) {
 }
 if ( !function_exists( 'jtoc_fs_custom_icon' ) ) {
     function jtoc_fs_custom_icon() {
-        return dirname( __FILE__ ) . '/assets/icon-256x256.png';
+        return dirname( __FILE__ ) . '/assets/icon-512x512.png';
     }
 
     jtoc_xy()->add_filter( 'plugin_icon', 'jtoc_fs_custom_icon' );

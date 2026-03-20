@@ -15,6 +15,7 @@ if (! defined('ABSPATH')) {
 $items     = isset($args['values']) ? $args['values'] : [];
 $items_pro = isset($args['values_pro']) ? $args['values_pro'] : [];
 $styles    = isset($args['styles']) ? $args['styles'] : '';
+$disabled = ($args['pro'] ?? null) ? ' disabled' : '';
 
 // Define allowed HTML tags for labels
 $allowed_html = [
@@ -47,6 +48,7 @@ $allowed_html = [
         <style><?php echo wp_strip_all_tags($styles) ?></style>
     <?php endif; ?>
 
+    <fieldset id="joli-radio-icon_<?php echo esc_attr($data['name']); ?>" class="joli-fieldset joli-radio-icon"<?php echo esc_attr($disabled); ?>>
     <?php foreach ($items as $id => $label) :
         $is_pro     = in_array($id, $items_pro, true);
         $pro_cls    = $is_pro ? ' joli-pro' : '';
@@ -63,10 +65,13 @@ $allowed_html = [
                 class="joli-radio<?php echo esc_attr($pro_cls); ?>"
                 value="<?php echo esc_attr($id); ?>"
                 <?php checked($is_checked); ?>
-                <?php echo $is_pro ? ' disabled' : ''; ?> />
+                <?php echo $is_pro ? ' disabled' : ''; ?>
+                <?php (($data['data_attrs'] ?? null) && ($data['data_attrs_fn'] ?? null)) && call_user_func($data['data_attrs_fn'], $data['data_attrs']); ?>
+                />
             <div class="joli-html-label">
                 <?php echo wp_kses($label, $allowed_html); ?>
             </div>
         </label>
     <?php endforeach; ?>
+    </fieldset>
 </div>

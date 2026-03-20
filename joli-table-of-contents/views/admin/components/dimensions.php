@@ -21,6 +21,9 @@ $val_dim    = isset($val['dim']) && is_array($val['dim']) ? $val['dim'] : [];
 $val_unit   = isset($val['unit']) ? (string) $val['unit'] : '';
 
 $disabled   = ! empty($args['pro']) ? ' disabled' : '';
+
+$lock_class = ($args['lock'] ?? false) ? ' --joli-is-locked' : '';
+// jtocpre($args);
 ?>
 
 <fieldset class="joli-dimensions-field" <?php echo esc_html($disabled); ?>>
@@ -38,7 +41,11 @@ $disabled   = ! empty($args['pro']) ? ' disabled' : '';
                             name="<?php echo esc_attr($data['name']); ?>[dim][<?php echo esc_attr($dimension); ?>]"
                             class="joli-dimension-input"
                             data-dimension="<?php echo esc_attr($dimension); ?>"
-                            value="<?php echo esc_attr($val_here); ?>" />
+                            value="<?php echo esc_attr($val_here); ?>"
+                            <?php if (! empty($args['step'])) : ?>step="<?php echo esc_attr($args['step']); ?>"<?php endif; ?>
+                            <?php if (isset($args['min'])) : ?>min="<?php echo esc_attr($args['min']); ?>"<?php endif; ?>
+                            <?php if (isset($args['max'])) : ?>max="<?php echo esc_attr($args['max']); ?>"<?php endif; ?>
+                            <?php ($data['data_attrs'] ?? null) && call_user_func($data['data_attrs_fn'], $data['data_attrs']); ?> />
                         <label class="joli-dimension-label" for="<?php echo esc_attr($input_id); ?>">
                             <?php echo esc_html($dimension); ?>
                         </label>
@@ -47,7 +54,7 @@ $disabled   = ! empty($args['pro']) ? ' disabled' : '';
             </ul>
 
             <span
-                class="joli-dimensions-lock dashicons"
+                class="joli-dimensions-lock dashicons<?php echo esc_attr($lock_class); ?>"
                 title="<?php echo esc_attr(__('Link values together', 'joli-table-of-contents')); ?>"></span>
 
             <select

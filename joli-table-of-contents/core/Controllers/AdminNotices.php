@@ -11,6 +11,7 @@ class AdminNotices
 {
 
     private $can_display_v2;
+    private $can_display_v3;
     private $options;
 
 
@@ -25,85 +26,125 @@ class AdminNotices
         //     $this->showV2Notice();
         // }
 
-        if ($this->canDisplayUpgradedEngine()) {
-            $this->showUpgradedEngineNotice();
+        if ($this->canDisplayV3Notice()) {
+            $this->showV3Notice();
         }
+
+        // if ($this->canDisplayUpgradedEngine()) {
+        //     $this->showUpgradedEngineNotice();
+        // }
     }
 
 
-    public function showUpgradedEngineNotice()
+    // public function showUpgradedEngineNotice()
+    // {
+
+    //     add_action('admin_notices', [$this, 'makeUpgradedEngineNotice']);
+    // }
+
+    // public function showV2Notice()
+    // {
+
+    //     add_action('admin_notices', [$this, 'makeRatingNotice']);
+    // }
+
+    public function showV3Notice()
     {
 
-        add_action('admin_notices', [$this, 'makeUpgradedEngineNotice']);
+        add_action('admin_notices', [$this, 'makeV3Notice']);
     }
 
-    public function showV2Notice()
-    {
 
-        add_action('admin_notices', [$this, 'makeRatingNotice']);
+    // public function makeUpgradedEngineNotice()
+    // {
+    //     return JTOC()->render(['notices' => 'upgraded-engine']);
+    // }
+
+    // public function makeRatingNotice()
+    // {
+    //     return JTOC()->render(['notices' => 'v2-warning']);
+    // }
+
+    public function makeV3Notice()
+    {
+        return JTOC()->render(['notices' => 'v3-update']);
     }
 
+    // public function makeGoProNotice()
+    // {
+    //     $base_url = 'https://wpjoli.com/joli-table-of-contents/';
+    //     $params = '?utm_source=' . jtoc_get_host_url() . '&utm_medium=admin-notice';
 
-    public function makeUpgradedEngineNotice()
+    //     $data = [
+    //         'pro_url' => $base_url . $params,
+    //         'pro_url_v' => $base_url . '#visibilities' . $params,
+    //     ];
+    //     return JTOC()->render(['notices' => 'go-pro'], $data);
+    // }
+
+    // public function canDisplayV2Notice()
+    // {
+
+    //     if ($this->can_display_v2 === null) {
+
+    //         //first time
+    //         // if (JTOC_USE_V1 === '1') {
+    //         //     $this->can_display_v2 = true;
+    //         // } else {
+    //             $time = $this->options->get('use_v1');
+    //             if ($time > 1) {
+    //                 $this->can_display_v2 = time() > $time;
+    //             } else {
+    //                 $this->can_display_v2 = false;
+    //             }
+    //             // $this->options->set('joli_toc_use_v1', time() + WEEK_IN_SECONDS * 4);
+    //         // }
+
+    //         // $this->can_display_v2 = JTOC_USE_V1 === '' ? true : false;
+    //     }
+    //     return $this->can_display_v2;
+    // }
+
+    public function canDisplayV3Notice()
     {
-        return JTOC()->render(['notices' => 'upgraded-engine']);
-    }
 
-    public function makeRatingNotice()
-    {
-        return JTOC()->render(['notices' => 'v2-warning']);
-    }
+        // return true;
 
-    public function makeGoProNotice()
-    {
-        $base_url = 'https://wpjoli.com/joli-table-of-contents/';
-        $params = '?utm_source=' . jtoc_get_host_url() . '&utm_medium=admin-notice';
+        if ($this->can_display_v3 === null) {
+            $time = $this->options->get('v3_info');
 
-        $data = [
-            'pro_url' => $base_url . $params,
-            'pro_url_v' => $base_url . '#visibilities' . $params,
-        ];
-        return JTOC()->render(['notices' => 'go-pro'], $data);
-    }
-
-    public function canDisplayV2Notice()
-    {
-
-        if ($this->can_display_v2 === null) {
-
-            //first time
-            if (JTOC_USE_V1 === '1') {
-                $this->can_display_v2 = true;
-            } else {
-                $time = $this->options->get('use_v1');
-                if ($time > 1) {
-                    $this->can_display_v2 = time() > $time;
-                } else {
-                    $this->can_display_v2 = false;
-                }
-                // $this->options->set('joli_toc_use_v1', time() + WEEK_IN_SECONDS * 4);
+            // First time, option is not set
+            if ($time === false) {
+                $autoload = true;
+                $this->options->set('v3_info', time(), $autoload);
+                return true;
             }
 
+            if ($time > 1) {
+                $this->can_display_v3 = time() > $time;
+            } else {
+                $this->can_display_v3 = false;
+            }
             // $this->can_display_v2 = JTOC_USE_V1 === '' ? true : false;
         }
-        return $this->can_display_v2;
+        return $this->can_display_v3;
     }
 
-    public function canDisplayUpgradedEngine()
-    {
-        $hide_alert = false;
-        $time = $this->options->get('engine_v2');
-        if ($time > 1) {
-            $hide_alert = time() < $time;
-        } else {
-            $hide_alert = false;
-        }
+    // public function canDisplayUpgradedEngine()
+    // {
+    //     $hide_alert = false;
+    //     $time = $this->options->get('engine_v2');
+    //     if ($time > 1) {
+    //         $hide_alert = time() < $time;
+    //     } else {
+    //         $hide_alert = false;
+    //     }
 
-        $v2_engine = (bool) jtoc_get_option('toc_engine_v2'); // 0 or 1
-        // JTOC()->log($v2_engine);
+    //     $v2_engine = (bool) jtoc_get_option('toc_engine_v2'); // 0 or 1
+    //     // JTOC()->log($v2_engine);
 
-        return !$v2_engine && !$hide_alert ? true : false;
-    }
+    //     return !$v2_engine && !$hide_alert ? true : false;
+    // }
 
 
 
@@ -118,7 +159,24 @@ class AdminNotices
             die;
         }
 
-        if ($handler == 'v2') {
+        if ($handler == 'v3') {
+            if ($method == 'go') {
+                $this->dismissV3();
+                wp_send_json_success([
+                    'gov3' => admin_url('admin.php?page=' . 'joli_table_of_contents_settings'),
+                ]);
+            } else if ($method == 'remind') {
+                $this->remindLaterV3();
+                wp_send_json_success([
+                    'gov3' => false,
+                ]);
+            } else if ($method == 'dismiss') {
+                $this->dismissV3();
+                wp_send_json_success([
+                    'gov3' => false,
+                ]);
+            }
+        } else if ($handler == 'v2') {
             if ($method == 'go') {
                 $this->goV2();
                 wp_send_json_success([
@@ -163,6 +221,21 @@ class AdminNotices
         die;
     }
 
+
+
+
+    public function remindLaterV3($value = 0)
+    {
+        // $value = $value > 0 ? $value : time() + 20;
+        $value = $value > 0 ? $value : time() + WEEK_IN_SECONDS;
+
+        $this->options->set('v3_info', $value, true);
+    }
+    public function dismissV3()
+    {
+        $this->options->set('v3_info', -1, true);
+    }
+
     public function goV1()
     {
         // $this->options->set('use_v1', 1);
@@ -188,7 +261,7 @@ class AdminNotices
     public function remindLaterV2TocEngine($value = 0)
     {
         $value = $value > 0 ? $value : time() + WEEK_IN_SECONDS * 4;
-        
+
         $this->options->set('engine_v2', $value);
     }
 }

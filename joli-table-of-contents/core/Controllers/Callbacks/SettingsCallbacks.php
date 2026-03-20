@@ -9,6 +9,8 @@ namespace WPJoli\JoliTOC\Controllers\Callbacks;
 class SettingsCallbacks
 {
 
+    protected $theme_palette = [];
+
     // Constructor
     public function __construct()
     {
@@ -17,6 +19,15 @@ class SettingsCallbacks
             $styles[] = 'display';
             return $styles;
         });
+
+
+        $settings = wp_get_global_settings();
+        if (!empty($settings['color']['palette']['theme'])) {
+            $this->theme_palette = array_map(
+                fn($c) => $c['color'],
+                $settings['color']['palette']['theme']
+            );
+        }
     }
 
 
@@ -25,11 +36,19 @@ class SettingsCallbacks
 
         $value = strtolower((string) $input);
         // return preg_match('/^#[0-9a-f]{6}$/', $value) ? $value : null;
-        if (preg_match('/^#[0-9a-f]{6}$/', $value)) {
+        if (preg_match('/^#[0-9a-f]{6,8}$/', $value)) {
             return $value;
         } else if (preg_match('/^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/', $value)) {
             return $value;
         } else if (preg_match('/^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d*(?:\.\d+)?)\)$/', $value)) {
+            return $value;
+        } else if (preg_match('/^hsl\((\d{1,3}),\s*(\d{1,3})%,\s*(\d{1,3})%(\s*(\d*(?:\.\d+)?)?\))$/', $value)) {
+            return $value;
+        } else if (preg_match('/^hsla\((\d{1,3}),\s*(\d{1,3})%,\s*(\d{1,3})%(\s*(\d*(?:\.\d+)?)?(?:\s*,\s*(\d*(?:\.\d+)?))?\))$/', $value)) {
+            return $value;
+        }
+        // validate a custom color format like this: "palette:color-1" (basically "palette:" + a lowercase alphanumeric ID that can include dashes)
+        else if (preg_match('/^palette:([a-z0-9-]{1,32})$/', $value)) {
             return $value;
         }
 
@@ -76,6 +95,11 @@ class SettingsCallbacks
     public function sanitizeUnit($input)
     {
         $value = (string) $input;
+
+        // Check if the value starts with a pipe
+        if (strpos($value, '|') === 0) {
+            return null;
+        }
 
         if (substr_count($value, '|') > 1) {
             return null;
@@ -164,6 +188,38 @@ class SettingsCallbacks
     }
 
 
+    /**
+     * Sanitizes the given input against a set of values.
+     *
+     * @param mixed $input
+     * @param array $values
+     * @param array $item Option item including args
+     *
+     * @return bool|null
+     */
+    public function sanitizeValues($input, $values, $item)
+    {
+        if (!$values) {
+            if (!empty($item['args']['labels'])) {
+
+                // Check for its own values
+                $allowed_values_array = $item['args']['values'] ?? false;
+            } else {
+                $allowed_values_array = array_keys($item['args']['values']);
+            }
+
+            if ($allowed_values_array === false) {
+                return;
+            }
+
+            return in_array($input, $allowed_values_array) ? $input : null;
+            // return in_array($input, $allowed_values) ? $input : null;
+        }
+
+        return in_array($input, $values) ? $input : null;
+    }
+
+
     private function doTemplate($template, $data = [])
     {
         return str_replace(
@@ -192,7 +248,16 @@ class SettingsCallbacks
         return $classes . '"' . $output;
     }
 
-    private function generateDataAttrs($data = null)
+
+    /**
+     * Prints out the data attributes for a given array of data.
+     * 
+     * @param array $data The array of data to print out as data attributes.
+     * 
+     * @return void
+     */
+
+    public function printDataAttrs($data = null)
     {
         if (!is_array($data)) {
             return;
@@ -200,7 +265,8 @@ class SettingsCallbacks
 
         if ($data) {
             foreach ($data as $key => $value) {
-                echo sprintf(' data-%s="%s"', esc_html($key), esc_attr($value));
+                // echo sprintf(' data-%s="%s"', esc_html($key), esc_attr($value));
+                echo jtoc_attrify(['data-' . esc_html($key) => is_array($value) ? esc_attr(json_encode($value)) : esc_attr($value)]);
             }
         }
     }
@@ -221,12 +287,14 @@ class SettingsCallbacks
         //     jtoc_isset_or_null($args['data'])
         // );
 
-        // $data_attrs_clean = $this->generateDataAttrs(jtoc_isset_or_null($args['data']));
-        $data_attrs = jtoc_isset_or_null($args['data']);
+        // $data_attrs_clean = $this->printDataAttrs(jtoc_isset_or_null($args['data']));
+        // $data_attrs_fn = [$this, 'printDataAttrs'];
+        $data_attrs = $args['data'] ?? [];
 
         $data = [
             'classes'       => $classes_data,
             'data_attrs'    => $data_attrs,
+            // 'data_attrs_fn' => $data_attrs_fn,
             'name'          => $args['name'],
             'placeholder'   => jtoc_isset_or_null($args['placeholder'], true),
             // 'option'        => $option, // id = 'general.show-title'
@@ -234,8 +302,13 @@ class SettingsCallbacks
             'option'        => $option, // id = 'general.show-title'
             'value'         => jtoc_get_option($option),
             'is_global'         => $is_global,
-            'active_post_type'   =>  sanitize_key( jtoc_isset_or_null($_GET['jtoc_post_type'], true)),
+            'active_post_type'   =>  sanitize_key(jtoc_isset_or_null($_GET['jtoc_post_type'], true)),
         ];
+        // JTOC()->log($data['name']);
+
+        if (strpos($data['option'], 'jtoc_onboarding[color_background]') >= 0) {
+            // JTOC()->log(print_r($data, true));
+        }
 
         //echoes the corresponding field type
         $this->displayInput($args, $data);
@@ -277,6 +350,10 @@ class SettingsCallbacks
      */
     public function displayInput($args, $data)
     {
+        if ($data['data_attrs'] ?? null) {
+            // Place this here so that if displayInput is called alone, the data_attr_fn is present
+            $data['data_attrs_fn'] = [$this, 'printDataAttrs'];
+        }
 
         $method = 'process' . ucfirst($args['type']);
 
@@ -329,6 +406,34 @@ class SettingsCallbacks
         );
     }
 
+    private function processNumber($args, $data)
+    {
+        $component_data = [
+            'data' => $data,
+            'args' => $args,
+        ];
+
+        JTOC()->render(
+            ['admin/components' => 'number'],
+            $component_data
+        );
+    }
+
+    // Process Color
+    private function processColor($args, $data)
+    {
+        $component_data = [
+            'data' => $data,
+            'args' => $args,
+            'palette' => $this->theme_palette
+        ];
+
+        JTOC()->render(
+            ['admin/components' => 'color'],
+            $component_data
+        );
+    }
+
     private function processCheckbox($args, $data)
     {
         $component_data = [
@@ -348,6 +453,7 @@ class SettingsCallbacks
             'data' => $data,
             'args' => $args,
         ];
+        // jtocpre($component_data);
 
         JTOC()->render(
             ['admin/components' => 'switch'],
@@ -377,6 +483,20 @@ class SettingsCallbacks
 
         JTOC()->render(
             ['admin/components' => 'checkboxes'],
+            $component_data
+        );
+    }
+
+
+    private function processRadio($args, $data)
+    {
+        $component_data = [
+            'data' => $data,
+            'args' => $args,
+        ];
+
+        JTOC()->render(
+            ['admin/components' => 'radio'],
             $component_data
         );
     }
@@ -437,6 +557,8 @@ class SettingsCallbacks
 
     private function processLucideicon($args, $data)
     {
+        // jtocpre($args);
+        // jtocpre($data);
         if (! isset($args['path'])) {
             return false;
         }
@@ -467,7 +589,25 @@ class SettingsCallbacks
             }
 
             $id = $filename['filename'];
+
             $icons[] = $id;
+        }
+
+        // Since v3.0.0
+        if (jtoc_isset_or_null($args['icons']) && count($args['icons']) > 0) {
+            $icons = array_filter($icons, function ($icon) use ($args) {
+                return in_array($icon, $args['icons']);
+            });
+
+            // sort icons in the order of $args['icons']
+            $sorted = [];
+            foreach ($args['icons'] as $icon) {
+                if (in_array($icon, $icons)) {
+                    $sorted[] = $icon;
+                }
+            }
+
+            $icons = $sorted;
         }
 
         $items_pro     = isset($args['values_pro']) ? $args['values_pro'] : [];
@@ -475,6 +615,27 @@ class SettingsCallbacks
 
         // Preprocess options
         $options = [];
+
+        // check for no_icon option
+        if (isset($args['no_icon']) && $args['no_icon']) {
+            $no_icon_checked = isset($data['value']['icon']) && $data['value']['icon'] === '';
+            $no_icon_svg ='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ban-icon lucide-ban"><path d="M4.929 4.929 19.07 19.071"/><circle cx="12" cy="12" r="10"/></svg>';
+           
+            $options[] = [
+                'id'        => $data['name'] . '-no-icon',
+                'name'      => $data['name'],
+                'value'     => 'none',
+                'checked'   => $no_icon_checked,
+                'label'     => '',
+                'disabled'  => false,
+                'pro_class' => '',
+                'icon_url'  => '',
+                'icon_svg'  => $no_icon_svg,
+                ];
+
+            $no_icon_checked && ($selected_icon = $no_icon_svg);
+        }
+
         foreach ($icons as $id) {
             $is_pro = in_array($id, $items_pro);
 
@@ -505,6 +666,66 @@ class SettingsCallbacks
         ];
 
         JTOC()->render(['admin/components' => 'lucideicon'], $component_data);
+    }
+
+    // Process Slider
+    private function processSlider($args, $data)
+    {
+        $component_data = [
+            'data' => $data,
+            'args' => $args,
+        ];
+
+        JTOC()->render(
+            ['admin/components' => 'slider'],
+            $component_data
+        );
+    }
+
+    /**
+     * Render a color from the palette or a simple hex color.
+     *
+     * If the input is a color from the palette, it will be rendered as a CSS variable.
+     * If the input is a simple hex color, it will be rendered as is.
+     *
+     * @param string $input The color to render.
+     *
+     * @return string The rendered color.
+     */
+    public function processColorValue($input)
+    {
+        // Check if we have a color from the palette first and save the string after "palette:" in a variable
+        if (preg_match('/^palette:([a-z0-9-]{1,32})$/', $input)) {
+            $color_id = str_replace('palette:', '', $input);
+            $color = 'var(--jtoc-palette-' . $color_id . ')';
+        } else {
+            $color = $input;
+        }
+
+        return $color;
+    }
+
+
+    public function processSliderValue($input, $item)
+    {
+        return $input;
+        if ($input == 'slower') {
+            // JTOC()->log($input);
+            // JTOC()->log($item);
+        }
+        $values = $item['args']['values'];
+        // 'values' => [
+        //     'xs' => '0.5em',
+        //     's'  => '1em',
+        //     'm'  => '1.5em',
+        //     'l'  => '2em',
+        //     'xl' => '3em',
+        // ],
+
+        if ($input == 'slower') {
+            JTOC()->log($values[$input]);
+        }
+        return $values[$input];
     }
 
 

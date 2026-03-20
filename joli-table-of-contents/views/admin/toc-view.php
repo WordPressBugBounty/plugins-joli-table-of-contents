@@ -2,7 +2,7 @@
 $class = ' jtoc-v-highlight';
 ?>
 <div class="jtoc-v-wrap">
-    <span><?php esc_html_e('Visualize', 'joli-table-of-contents') ?></span>
+    <span><?php esc_html_e('Locate visually', 'joli-table-of-contents') ?></span>
     <span class="joli-field-info dashicons dashicons-info-outline"></span>
     <div class="joli-info-bubble">
         <div class="jtoc-v-main<?php echo $highlight === 'main' ? esc_attr($class) : '' ?>">

@@ -19,6 +19,9 @@ class Blocks {
             $asset_file['dependencies'],
             $asset_file['version']
         );
+        if ( method_exists( $this, 'jtocDataPrintScript' ) ) {
+            add_action( 'wp_print_scripts', [$this, 'jtocDataPrintScript'] );
+        }
         $ret = register_block_type( JTOC()->path( 'gutenberg/blocks/joli-table-of-contents' ), [
             'editor_script'   => 'joli-table-of-contents-block-script',
             'render_callback' => [$this, 'joliTableOfContentsRenderCallback'],
@@ -29,6 +32,15 @@ class Blocks {
         /** @var ShortcodesController $scc */
         $scc = JTOC()->requestService( ShortcodesController::class );
         return $scc->joliTOCShortcodeFromBlock( $atts, true );
+    }
+
+    public function jtocDataPrintScript() {
+        if ( !jtoc_is_gutenberg_editor() ) {
+            return;
+        }
+        echo '<script>' . 'const jtoc_data_all = ' . json_encode( [
+            'settings_url' => admin_url( 'admin.php?page=' . JTOC()::SETTINGS_V2_SLUG ),
+        ] ) . '</script>';
     }
 
 }

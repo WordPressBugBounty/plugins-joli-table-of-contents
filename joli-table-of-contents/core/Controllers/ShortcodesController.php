@@ -110,41 +110,65 @@ class ShortcodesController
 
         $tocBuilder->setOptions($atts, $additional_options);
 
+        // JTOC()->scope = $tocBuilder->getScope();
+
 
         if ($this->isProcessing || JTOC()->isProcessingShortcode) {
             // return str_replace('[#]', '[' . $shortcode_index . ']', JTOC()::SHORTCODE_TEMP_TAG);
             return str_replace('#',  $shortcode_index, JTOC()::SHORTCODE_TEMP_TAG);
         }
 
-        $shortcode = $this->buildShortcodeContents(get_post(), $shortcode_index, false);
+        $the_post = get_post();
+
+        if (!$the_post) {
+            return;
+        }
+
+        $shortcode = $this->buildShortcodeContents($the_post, $shortcode_index, false);
         return $shortcode;
     }
 
     public function buildShortcodeContents($post, $shortcode_index = 0, $in_the_content = true)
     {
+        $tocBuilder = $this->tocBuilder[$shortcode_index];
+        $scope = $tocBuilder->getScope();
+
         //shortcode or block inside the_content
         if (JTOC()->getTheContent()) {
+            // if ($scope === 'extended') {
             $content = JTOC()->getTheContent();
+            // } else {
+            //     $content = is_object($post) ? $post->post_content : JTOC()->getTheContent();
+            // }
+            // JTOC()->log($content);
         }
         //shortcode or block inside a widget
         else {
             JTOC()->isBuildingShortcode = true;
             $the_content = is_object($post) ? $post->post_content : '';
             if ($in_the_content === false && jtoc_is_front()) {
-                $content = apply_filters('joli_toc_post_content_preprocessing', apply_filters('the_content', $the_content));
+
+                // JTOC()->log($scope);
+                $scannable_content = $scope === 'extended' ? apply_filters('the_content', $the_content) : $the_content;
+                $content = apply_filters('joli_toc_post_content_preprocessing', $scannable_content);
+                // $content = apply_filters('joli_toc_post_content_preprocessing', apply_filters('the_content', $the_content));
             } else {
                 $content = apply_filters('joli_toc_post_content_preprocessing', $the_content);
             }
             JTOC()->isBuildingShortcode = false;
         }
 
-        $tocBuilder = $this->tocBuilder[$shortcode_index];
 
         // set the initial microtime
         // $start_time = microtime(true);
 
         $processed_content = ContentProcessing::Process($content, false, $tocBuilder, jtoc_get_multipaged_content());
 
+        $processed_headings = [];
+        if ($scope === 'content') {
+            // Process headings only based on raw, unprocessed content (as in the editor)
+            $processed_headings = ContentProcessing::Process($post->post_content, true, $tocBuilder, jtoc_get_multipaged_content());
+        }
         // //end time
         // $end_time = microtime(true);
         // $total_time = round($end_time - $start_time, 3);
@@ -158,7 +182,7 @@ class ShortcodesController
         // );
 
         if ($processed_content) {
-            $this->headings_processed[$shortcode_index] = $processed_content['headings'];
+            $this->headings_processed[$shortcode_index] = $processed_headings ? $processed_headings['headings'] : $processed_content['headings'];
             $this->the_content_processed =  $processed_content['content'];
             // $this->the_content_processed = $time_display . $processed_content['content'];
         }
@@ -166,6 +190,7 @@ class ShortcodesController
         if ($this->headings_processed[$shortcode_index]) {
             $tocBuilder->setHeadings($this->headings_processed[$shortcode_index]);
             $tocBuilder->setContent($this->the_content_processed);
+            $tocBuilder->setReadingTime($processed_content['reading_time']);
 
             $this->toc = $tocBuilder->makeTOC($this->headings_processed[$shortcode_index]);
             return $this->toc;
@@ -175,6 +200,12 @@ class ShortcodesController
 
     public function beforeTheContent($content)
     {
+        // JTOC()->log('beforeTheContent');
+        // Since 3.0
+        if (JTOC()->isMainPost() !== true) {
+            return $content;
+        }
+
         // set the current post ID
         if (JTOC()->the_ID === null) {
             JTOC()->the_ID = get_the_ID();
@@ -192,6 +223,10 @@ class ShortcodesController
 
 
             JTOC()->isProcessingShortcode = true;
+
+            // Set the content (unfiltered). Since 3.0
+            // JTOC()->setTheContent($content);
+
             return $content;
         }
 
@@ -200,6 +235,10 @@ class ShortcodesController
 
     public function filterTheContentShortcode($content)
     {
+        // Since 3.0
+        if (JTOC()->isMainPost() !== true) {
+            return $content;
+        }
 
         if (is_feed() || is_search() || is_archive()) {
             return $content;
@@ -211,7 +250,19 @@ class ShortcodesController
 
         //JTOC()->the_ID === get_the_ID() checks the initial post ID, because it could cause confusion if w WPQuery was executed in between
         if (JTOC()->the_ID === get_the_ID() && JTOC()->isProcessingShortcode) {
+            // JTOC()->log($content);
+
+            // $scope = JTOC()->scope; // Get the previously stored scope from the joliTOCShortcode() function
+            // JTOC()->log($scope);
+
+            // if ($scope === 'extended') {
+            // At this point the content is completely filtered and all 3rd-party shortcodes should have been processed
             JTOC()->setTheContent($content);
+            // }
+            // else {
+            // No else:
+            // Since we already setTheContent at the beginning of the process, it will be considered "raw" (not passed through the_content filter) so ne need to reset it here
+            // }
 
             $shortcode_match = preg_match_all(JTOC()::SHORTCODE_TEMP_TAG_REGEX_PATTERN, $content, $matches);
 

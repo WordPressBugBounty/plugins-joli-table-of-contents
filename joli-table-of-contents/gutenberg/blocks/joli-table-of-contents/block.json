@@ -1,9 +1,9 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 2,
+  "apiVersion": 3,
   "name": "wpjoli/joli-table-of-contents",
   "version": "0.1.0",
-  "title": "Joli Table of contents",
+  "title": "Joli Table of Contents",
   "category": "widgets",
   "icon": "list-view",
   "description": "Table of contents",

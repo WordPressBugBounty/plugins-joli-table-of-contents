@@ -22,6 +22,15 @@ class MenuController
     protected $option_group;
     protected $logo_url;
 
+
+    private $capability;
+
+    private $params;
+    private $wpjoli_url = 'https://wpjoli.com/';
+    private $base_url = 'https://wpjoli.com/joli-table-of-contents/';
+
+    private $menu_links;
+
     // public function __construct()
     // {
     //     //Registers the menu afters functions.php has been processed to allow custom filter hooks for joli_toc_settings_capability
@@ -30,8 +39,77 @@ class MenuController
 
     public function setup()
     {
+
+        $this->menu_links = [
+            // Settings
+            // [
+            //     'label' => __('Settings', 'joli-table-of-contents'),
+            //     'url' => sprintf('%sadmin.php?page=' . Application::instance()::SETTINGS_SLUG, get_admin_url()),
+            // ],
+
+            //Documentation
+            [
+                'label' => __('Documentation', 'joli-table-of-contents'),
+                'url' => $this->wpjoli_url . 'docs/joli-table-of-contents/' . $this->params,
+                'target' => '_blank',
+            ],
+
+            //WP.org Support forum
+            [
+                'label' => __('Support', 'joli-table-of-contents'),
+                'url' => 'https://wordpress.org/support/plugin/' . Application::instance()::WP_ORG_SLUG,
+                'target' => '_blank',
+            ],
+        ];
+
+        if (jtoc_xy()->is_premium()) {
+            array_unshift(
+                $this->menu_links,
+                [
+                    'label' => __('Account', 'joli-table-of-contents'),
+                    'url' => jtoc_xy()->get_account_url(),
+                ],
+                [
+                    'label' => __('Contact us', 'joli-table-of-contents'),
+                    'url' => jtoc_xy()->contact_url(),
+                ]
+            );
+        }
+
+        if (jtoc_xy()->is_free_plan()) {
+            array_push(
+                $this->menu_links,
+                //Rate us 5 stars on wordpress.org
+                [
+                    'label' => __('Rate us ★★★★★', 'joli-table-of-contents'),
+                    'url' => 'https://wordpress.org/support/plugin/' . Application::instance()::WP_ORG_SLUG . '/reviews/?rate=5#new-post',
+                    'target' => '_blank',
+                ]
+            );
+        }
+
+        $this->params = '?utm_source=' . jtoc_get_host_url() . '&utm_medium=admin-menu&utm_campaign=joli-table-of-contents';
+
         // $this->option_group = Application::SLUG . '_settings';
         $this->option_group = Application::SETTINGS_V2_SLUG;
+
+
+        $this->capability = apply_filters('joli_toc_settings_capability', 'manage_options');
+
+        $allowed_cap = ['manage_options', 'edit_pages'];
+        //allow custom capability only if current user is allowed
+        if (!in_array($this->capability, $allowed_cap)) {
+            $this->capability = 'manage_options'; // default value
+        }
+
+        //Wordpress filter that allows saving settings
+        $capability = $this->capability;
+        add_filter(
+            'option_page_capability_' . Application::SETTINGS_V2_SLUG,
+            function ($cap) use ($capability) {
+                return $capability;
+            }
+        );
 
         $this->setPages();
         // $this->setSubpages();
@@ -39,7 +117,7 @@ class MenuController
         $this->addPages($this->pages)->withSubPage('Settings')->addSubPages($this->subpages);
 
         // $this->logo_url = JTOC()->url('assets/admin/img/wpjoli-logo-new-small.png');
-        $this->logo_url = JTOC()->url('assets/admin/img/wpjoli-logo-2023.svg');
+        $this->logo_url = JTOC()->url('assets/admin/img/wpjoli-logo-white.svg');
     }
 
     /**
@@ -48,27 +126,12 @@ class MenuController
      */
     public function setPages()
     {
-        $capability = apply_filters('joli_toc_settings_capability', 'manage_options');
-
-        $allowed_cap = ['manage_options', 'edit_pages'];
-        //allow custom capability only if current user is allowed
-        if (!in_array($capability, $allowed_cap)) {
-            $capability = 'manage_options'; // default value
-        }
-
-        //Wordpress filter that allows saving settings
-        add_filter(
-            'option_page_capability_' . Application::SETTINGS_V2_SLUG,
-            function ($cap) use ($capability) {
-                return $capability;
-            }
-        );
 
         $this->pages = [
             [
-                'page_title' => Application::NAME,
-                'menu_title' => Application::NAME,
-                'capability' => $capability,
+                'page_title' => Application::NAME_SHORT,
+                'menu_title' => Application::NAME_SHORT,
+                'capability' => $this->capability,
                 // 'capability' => 'edit_pages',
                 'menu_slug' => $this->option_group,
                 'callback' => [$this, 'displaySettingsPage'],
@@ -133,7 +196,7 @@ class MenuController
     public function addAdminMenu()
     {
         $this->setup();
-        
+
         foreach ($this->admin_pages as $page) {
             add_menu_page($page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['callback'], $page['icon_url'], $page['position']);
         }
@@ -167,8 +230,11 @@ class MenuController
     // }
 
 
+
     public function displaySettingsPage()
     {
+        $app = Application::instance();
+
         $settings = JTOC()->requestService(SettingsController::class);
         $groups = $settings->getGroups();
 
@@ -177,6 +243,7 @@ class MenuController
             $tabs[$group['id']] = [
                 'label' => $group['label'],
                 'args' => $group['args'],
+                'icon' => $app->url('assets/admin/icons/' . $group['icon'] . '.svg'),
             ];
         }
 
@@ -205,7 +272,14 @@ class MenuController
         $custom_themes = $themes_controller->getThemes();
         // JTOC()->log($custom_themes);
 
+        // Get the last 25 posts
+        $posts = get_posts([
+            'posts_per_page' => 25,
+            'post_type' => 'post',
+        ]);
+
         $data = [
+            'app_id' => $app::ID,
             'option_group' => $this->option_group,
             'tabs' => $tabs,
             'logo_url' => $this->logo_url,
@@ -213,18 +287,21 @@ class MenuController
             'pro_url' => $base_url . $params,
             'pro_url_v' => $base_url . '#visibilities' . $params,
             'pro_features' => [
-                __("Custom settings per post type", "joli-table-of-contents"),
-                __("Customize individual TOC block", "joli-table-of-contents"),
+                __("Additional premium themes", "joli-table-of-contents"),
+                __("Collapsible headings", "joli-table-of-contents"),
                 __("Sidebar sticky TOC", "joli-table-of-contents"),
-                __("Floating widget", "joli-table-of-contents"),
-                __("Slide-out widget", "joli-table-of-contents"),
-                __("Progress bar", "joli-table-of-contents"),
-                __("Advanced auto-insert rules", "joli-table-of-contents"),
-                __("Dynamic unfold", "joli-table-of-contents"),
-                __("Skip headings by ascending class", "joli-table-of-contents"),
+                __("Floating / Slide-out / Timeline TOC", "joli-table-of-contents"),
+                __("Top level headings styles", "joli-table-of-contents"),
+                // __("Slide-out widget", "joli-table-of-contents"),
+                // __("Timeline TOC widget", "joli-table-of-contents"),
+                // __("Custom settings per post type", "joli-table-of-contents"),
+                // __("Customize individual TOC block", "joli-table-of-contents"),
                 __("Columns mode", "joli-table-of-contents"),
-                __("Additional themes", "joli-table-of-contents"),
-                __("Premium support", "joli-table-of-contents"),
+                // __("Progress bar", "joli-table-of-contents"),
+                // __("Advanced auto-insert rules", "joli-table-of-contents"),
+                // __("Skip headings by ascending class", "joli-table-of-contents"),
+                // __("Premium support", "joli-table-of-contents"),
+                __("...and more", "joli-table-of-contents"),
             ],
 
             'plugins' => [
@@ -271,8 +348,70 @@ class MenuController
 
             // 'block_json' => $settings->getJSONAttributes(),
             // 'block_template' => $settings->getBlockTemplate(),
+
+            //since 3.0.0
+            'posts' => $posts,
+            'onboarding' => include_once Application::instance()->path('config/onboarding.php'),
         ];
 
         JTOC()->render(['admin' => 'settings'], $data);
+    }
+
+    public function doAdminSettingsHeader()
+    {
+        $current_screen = get_current_screen();
+        $settings_page_hook =  '_page_' . Application::SETTINGS_V2_SLUG;
+        // $form_editor_page_hook =  '_page_' . Application::FORM_EDITOR_SLUG;
+
+        if (!($current_screen && stripos($current_screen->id, $settings_page_hook) !== false)) {
+            return;
+        }
+
+        $plugin_info = get_plugin_data(Application::instance()->path(Application::WP_ORG_SLUG . '.php'));
+        $version =  isset($plugin_info['Version']) ? $plugin_info['Version'] : '?';
+
+        $post_types = get_post_types(
+            ['public' => true],
+            'objects'
+        );
+
+        $admin_url = get_admin_url();
+
+        /** @var PostTypeSettingController $oc */
+        $ptsc = JTOC()->requestService(PostTypeSettingController::class);
+        $activated_post_type = $ptsc->getActivatedPostType();
+
+        $params = '?utm_source=' . jtoc_get_host_url() . '&utm_medium=admin-settings&utm_campaign=' . Application::WP_ORG_SLUG . '-settings';
+
+        $data = [
+            'app_id' => Application::instance()::ID,
+            'logo_url' => $this->logo_url,
+            'version' => 'v' . $version,
+            'menu' => $this->menu_links,
+
+
+            'joli_toc_doc_post_type_settings_url' => $this->wpjoli_url . 'docs/joli-table-of-contents/settings/post-type-settings/' . $params,
+            'post_types' => $post_types, //label, name, menu_icon
+            'jtoc_settings_url' => sprintf('%sadmin.php?page=' . JTOC()::SETTINGS_V2_SLUG, $admin_url),
+            'active_post_type' => sanitize_key(jtoc_isset_or_null($_GET['jtoc_post_type'], true)),
+            'activated_post_type' => $activated_post_type,
+        ];
+        // var_dump($data);
+
+        Application::instance()->render(['admin' => 'app-toolbar-upper'], $data);
+        Application::instance()->render(['admin' => 'app-toolbar-lower'], $data);
+        // else if ($current_screen && stripos($current_screen->id, $form_editor_page_hook) !== false) {
+
+        //     $plugin_info = get_plugin_data(Application::instance()->path(Application::instance()::SLUG . '.php'));
+
+        //     $data = [
+        //         'app_id' => Application::instance()::ID,
+        //         'logo_url' => $this->logo_url,
+        //         'version' => 'v' . isset($plugin_info['Version']) ? $plugin_info['Version'] : '?',
+        //         'menu' => $this->menu_links,
+        //     ];
+
+        //     Application::instance()->render(['admin' => 'app-toolbar-upper'], $data);
+        // }
     }
 }

@@ -144,6 +144,10 @@ class HTMLParser
 
     protected function encodeContent($html)
     {
+        if (!is_string($html)) {
+            return $html;
+        }
+
         $pattern = '#(?P<block><\s*(script|style)[^>]*>.*?</\2\s*>|<!\[CDATA\[.*?\]\]>)#isum';
 
         return preg_replace_callback($pattern, function ($matches) {
@@ -158,6 +162,10 @@ class HTMLParser
      */
     protected function decodeContent($html)
     {
+        if (!is_string($html)) {
+            return $html;
+        }
+        
         $pattern = '#<!--__JTOC_X_DATA__:(.*?)-->#s';
 
         return preg_replace_callback($pattern, function ($matches) {
@@ -167,11 +175,7 @@ class HTMLParser
     protected function wrapContent($content)
     {
         $id = HTMLParser::CONTENT_WRAP_HTML_ID;
-        return '<!DOCTYPE html>
-        <html>
-            <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
-            <body><div id="' . $id . '">' . $content . '</div></body>
-        </html>';
+        return '<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body><div id="' . $id . '">' . $content . '</div></body></html>';
 
         // return <<<HTML
         // <!DOCTYPE html>
@@ -199,6 +203,18 @@ class HTMLParser
         return $html_fragment;
     }
 
+    /**
+     * Gets the HTML content of a DOMDocument object using the v2 mode.
+     *
+     * In v2 mode, the content is wrapped in a `<div>` element with an ID of {@see HTMLParser::CONTENT_WRAP_HTML_ID}.
+     * The HTML content is then extracted from this element and returned as a string.
+     * If the element is not found, the `<body>` element is used as a fallback.
+     *
+     * The returned HTML string is decoded using the {@see HTMLParser::decodeContent()} method.
+     *
+     * @param DOMDocument $doc
+     * @return string The HTML content of the DOMDocument object
+     */
     protected function getHTMLv2(DOMDocument $doc): string
     {
         $wrapper = $doc->getElementById(HTMLParser::CONTENT_WRAP_HTML_ID);
@@ -213,12 +229,32 @@ class HTMLParser
             foreach ($wrapper->childNodes as $child) {
                 $cleanHtml .= $doc->saveHTML($child);
             }
+            // JTOC()->log(decode_sensitive_blocks($cleanHtml));
+            return $this->decodeContent($cleanHtml);
+        }
+    }
+
+    /**
+     * Unwrap a DOMDocument object by removing the outermost element
+     * with the ID specified in HTMLParser::CONTENT_WRAP_HTML_ID.
+     *
+     * If the element is not found, the original DOMDocument object is returned.
+     *
+     * @param DOMDocument $doc The DOMDocument object to unwrap.
+     * @return DOMNodeElement The unwrapped DOMNodeElement object.
+     */
+    public function unwrapTOCNode(DOMDocument $doc)
+    {
+        $tocNode = $doc->getElementById(HTMLParser::CONTENT_WRAP_HTML_ID);
+        if (!$tocNode) {
+            return $doc;
+            // return [$doc, false];
         }
 
-        // JTOC()->log($cleanHtml);
-        // JTOC()->log(decode_sensitive_blocks($cleanHtml));
-        return $this->decodeContent($cleanHtml);
+        return $tocNode;
+        // return [$tocNode, true]; // true means the node has the ID 
     }
+    
     /**
      * Returns a cleaned up version of the given HTML string.
      * When the `tidy` PHP extension is not available, the original HTML is returned.

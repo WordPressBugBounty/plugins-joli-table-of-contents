@@ -6,6 +6,7 @@
 namespace WPJoli\JoliTOC\Controllers;
 
 // use ErrorException;
+use Error;
 use WPJoli\JoliTOC\Application;
 use WPJoli\JoliTOC\Controllers\Callbacks\SettingsCallbacks;
 use WPJoli\JoliTOC\Controllers\PostTypeSettingController;
@@ -62,7 +63,9 @@ class SettingsController {
         if ( $this->has_init ) {
             return;
         }
-        $this->settings_cb = new SettingsCallbacks();
+        // JTOC()->log('--- init  ----------------');
+        // JTOC()->log(JTOC()->resourcesLoaded);
+        // $this->settings_cb = new SettingsCallbacks();
         //loads the default settings array
         $this->settings = $this->defaultSettings();
         $this->prefix = Application::SLUG . '_';
@@ -118,7 +121,12 @@ class SettingsController {
     }
 
     private function defaultSettings() {
-        $settings = (include JTOC()->path( 'config/defaults_v2.php' ));
+        // if (jtoc_xy()->can_use_premium_code__premium_only()) {
+        if ( jtoc_xy()->is_premium() ) {
+            $settings = (include JTOC()->path( 'config/defaults_v3_pro.php' ));
+        } else {
+            $settings = (include JTOC()->path( 'config/defaults_v3.php' ));
+        }
         return $settings;
     }
 
@@ -135,6 +143,7 @@ class SettingsController {
                 'id'    => $group['group'],
                 'name'  => $group['group'],
                 'label' => $group['label'],
+                'icon'  => jtoc_isset_or_null( $group['icon'] ),
                 'args'  => jtoc_isset_or_null( $group['args'] ),
             ];
             $this->groups[] = $_group;
@@ -144,12 +153,14 @@ class SettingsController {
                     'name'  => $section['name'],
                     'group' => $group['group'],
                     'title' => $section['title'],
-                    'desc'  => jtoc_isset_or_null( $section['desc'] ),
+                    'desc'  => $section['desc'] ?? null,
+                    'data'  => $section['data'] ?? null,
                 ];
                 $this->sections[] = $_section;
                 //Init Fields-------------------
                 foreach ( $section['fields'] as $field ) {
                     $_args = $field['args'];
+                    $class = $field['class'] ?? '';
                     $active_post_type = ( is_admin() ? jtoc_isset_or_null( $_GET['jtoc_post_type'], true ) : null );
                     $is_global = jtoc_isset_or_null( $_args['is_global'] );
                     //adds some args automatically
@@ -161,24 +172,26 @@ class SettingsController {
                     $pro_class = ( jtoc_isset_or_null( $_args['pro'] ) === true ? ' joli-pro' : '' );
                     $new_class = ( jtoc_isset_or_null( $_args['new'] ) === true ? ' joli-new' : '' );
                     $is_global_class = ( $is_global && $active_post_type ? ' joli-is-global' : '' );
-                    $_args['class'] = 'tab-' . $group['group'] . $pro_class . $new_class . $is_global_class . ' joli-field--' . $field['id'];
+                    $_args['class'] = 'tab-' . $group['group'] . $pro_class . $new_class . $is_global_class . ' joli-field--' . $field['id'] . (( $class ? ' ' . $class : '' ));
+                    // $_args['class'] = 'tab-' . $group['group'] . $pro_class . $new_class . $is_global_class . ' joli-field--' . $field['id'];
                     $_args['type'] = $field['type'];
                     $info_html = '<span class="joli-field-info dashicons dashicons-info-outline"></span>';
                     $info = ( jtoc_isset_or_null( $_args['desc'] ) ? $info_html . '<div class="joli-info-bubble">' . $_args['desc'] . '</div>' : '' );
                     $_field = [
-                        'id'            => $field['id'],
-                        'option_id'     => $option_id,
-                        'section'       => $section['name'],
-                        'group'         => $group['group'],
-                        'label'         => $field['title'] . $info,
-                        'type'          => $field['type'],
-                        'default'       => jtoc_isset_or_null( $field['default'] ),
-                        'initial_value' => jtoc_isset_or_null( $field['initial_value'] ),
-                        'args'          => $_args,
-                        'name'          => $page_name . '[' . $option_id . ']',
-                        'sanitize'      => jtoc_isset_or_null( $field['sanitize'] ),
-                        'sanitize_args' => jtoc_isset_or_null( $field['sanitize_args'] ),
-                        'global'        => $is_global,
+                        'id'             => $field['id'],
+                        'option_id'      => $option_id,
+                        'section'        => $section['name'],
+                        'group'          => $group['group'],
+                        'label'          => $field['title'] . $info,
+                        'type'           => $field['type'],
+                        'default'        => jtoc_isset_or_null( $field['default'] ),
+                        'initial_value'  => jtoc_isset_or_null( $field['initial_value'] ),
+                        'args'           => $_args,
+                        'name'           => $page_name . '[' . $option_id . ']',
+                        'sanitize'       => jtoc_isset_or_null( $field['sanitize'] ),
+                        'sanitize_args'  => jtoc_isset_or_null( $field['sanitize_args'] ),
+                        'global'         => $is_global,
+                        'value_callback' => jtoc_isset_or_null( $field['value_callback'] ),
                     ];
                     $this->fields[] = $_field;
                     $cpt++;
@@ -200,9 +213,11 @@ class SettingsController {
     }
 
     public function registerSettings() {
+        $this->settings_cb = JTOC()->requestService( SettingsCallbacks::class );
         // if ($this->groups = []) {
         //     $this->init();
         // }
+        // JTOC()->log('--- init $this->settings_cb  ----------------');
         $post_types = get_post_types( [
             'public' => true,
         ], 'objects' );
@@ -227,6 +242,7 @@ class SettingsController {
     }
 
     public function registerSettingsGroup( $group = null ) {
+        $this->settings_cb = JTOC()->requestService( SettingsCallbacks::class );
         $setting_name = $this->page_name;
         //--Register Sections-----
         // $_section = [
@@ -236,17 +252,41 @@ class SettingsController {
         //     'callback' => [ $this->settings_cb, 'sectionCallback'],
         //     // 'desc' => $section['desc'],
         // ];
-        foreach ( $this->sections as $section ) {
+        $previous_group = '';
+        // foreach ($this->sections as $section) {
+        for ($i = 0; $i < count( $this->sections ); $i++) {
+            $section = $this->sections[$i];
+            $group = $section['group'];
+            $group_wrap_begin = ( $i === 0 ? '<div class="joli-settings-group" data-group="' . $group . '">' : '' );
+            $group_wrap_end = '';
+            if ( $i !== 0 && $group !== $previous_group ) {
+                $group_wrap_begin = '</div><div class="joli-settings-group" data-group="' . $group . '">';
+                // $group_wrap_end = '</div>';
+            }
+            if ( $i === count( $this->sections ) - 1 ) {
+                $group_wrap_end = '</div>';
+            }
+            $data_attrs = $section['data'] ?? [];
+            $data_attrs_str = '';
+            if ( $data_attrs ) {
+                foreach ( $data_attrs as $key => $value ) {
+                    // echo sprintf(' data-%s="%s"', esc_html($key), esc_attr($value));
+                    $data_attrs_str .= jtoc_attrify( [
+                        'data-' . esc_html( $key ) => ( is_array( $value ) ? esc_attr( json_encode( $value ) ) : esc_attr( $value ) ),
+                    ] );
+                }
+            }
             add_settings_section(
                 $section['name'],
-                $section['title'],
+                '',
                 [$this, 'sectionCallback'],
                 $setting_name,
                 [
-                    'before_section' => '<div class="joli-section joli-section--' . $section['name'] . '">',
-                    'after_section'  => '</div>',
+                    'before_section' => $group_wrap_begin . '<div class="joli-section joli-section--' . $section['name'] . '"' . $data_attrs_str . '>',
+                    'after_section'  => '</div>' . $group_wrap_end,
                 ]
             );
+            $previous_group = $group;
         }
         //--Register Fields-----
         // $_field = [
@@ -282,6 +322,7 @@ class SettingsController {
     }
 
     public function sanitizeCallback( $input ) {
+        $this->settings_cb = JTOC()->requestService( SettingsCallbacks::class );
         // [
         //     "general.show-title" => "Title",
         //     ...
@@ -301,7 +342,12 @@ class SettingsController {
                 //builds the corresponding method name: ex: sanitizeText found in the SettingsCallbacks class
                 $method_name = 'sanitize' . ucfirst( $sanitization );
                 if ( method_exists( $this->settings_cb, $method_name ) ) {
-                    $input[$option] = call_user_func( [$this->settings_cb, $method_name], $value, $sanitize_args );
+                    $input[$option] = call_user_func(
+                        [$this->settings_cb, $method_name],
+                        $value,
+                        $sanitize_args,
+                        $field_item
+                    );
                 }
             }
         }
@@ -312,11 +358,12 @@ class SettingsController {
      * Displays the section description if any
      */
     public function sectionCallback( $args ) {
-        // pre($args);
+        // jtocpre($args);
         foreach ( $this->sections as $section ) {
             if ( $section['name'] === $args['id'] ) {
+                echo '<h2 id="' . $section['group'] . '_' . $section['name'] . '" class="joli-section-title" data-group="' . $section['group'] . '">' . wp_kses_post( $section['title'] ) . '</h2>';
                 if ( isset( $section['desc'] ) && $section['desc'] ) {
-                    echo '<div class="joli-section-desc" style="display:none">' . wp_kses_post( $section['desc'] ) . '</div>';
+                    echo '<div class="joli-section-desc">' . wp_kses_post( $section['desc'] ) . '</div>';
                 }
                 break;
             }
@@ -331,6 +378,9 @@ class SettingsController {
     public function setupSettings() {
         $page_name = $this->getPageName();
         // JTOC()->prettyLog($page_name);
+        // $this->onboardingScreenActions();
+        // if ($page_name === Application::SETTINGS_V2_SLUG) {
+        // }
         if ( !$this->fields ) {
             $this->initSettings();
         }
@@ -437,7 +487,45 @@ class SettingsController {
         if ( $options && is_array( $options ) ) {
             $value = $this->fetchOption( $option_id, $options, $default_val );
         }
+        // Before version 3.0
+        // if ($value !== null) {
+        //     return $value;
+        // }
         if ( $value !== null ) {
+            // Check if there is a render callback
+            $value_callback = jtoc_isset_or_null( $field_item['value_callback'] );
+            // if ($option_id === 'timeline_animation_duration') {
+            //     JTOC()->log($option_id . ' - ' . $value_callback);
+            //     // JTOC()->log($field_item);
+            // }
+            $this->settings_cb = JTOC()->requestService( SettingsCallbacks::class );
+            // Values must be "raw" in the admin screen
+            if ( !is_admin() && $value_callback && method_exists( $this->settings_cb, $value_callback ) ) {
+                // if ($option_id === 'timeline_animation_duration'){
+                //     $backtrace = debug_backtrace();
+                //     // pluck to function stack only
+                //     $backtrace = array_map(function ($trace){
+                //         return [
+                //             'file' => $trace['file'],
+                //             'line' => $trace['line'],
+                //             'function' => $trace['function']
+                //         ];
+                //     }, $backtrace);
+                //     // backtrace
+                //     // JTOC()->log(print_r($backtrace, true));
+                // }
+                // if ($option_id === 'timeline_animation_duration') {
+                //     JTOC()->log('#1####################################################');
+                //     JTOC()->log($value);
+                //     JTOC()->log('#####################################################');
+                // }
+                $value = call_user_func( [$this->settings_cb, $value_callback], $value, $field_item );
+                // if ($option_id === 'timeline_animation_duration') {
+                //     JTOC()->log('#2####################################################');
+                //     JTOC()->log($value);
+                //     JTOC()->log('#####################################################');
+                // }
+            }
             return $value;
         }
         return;
@@ -465,10 +553,16 @@ class SettingsController {
         $sanitize_args = jtoc_isset_or_null( $option['sanitize_args'] );
         // 4. Perform the sanitation based on the value of the 'sanitize' offset
         if ( $sanitize ) {
+            $this->settings_cb = JTOC()->requestService( SettingsCallbacks::class );
             //builds the corresponding method name: ex: sanitizeText found in the SettingsCallbacks class
             $method_name = 'sanitize' . ucfirst( $sanitize );
             if ( method_exists( $this->settings_cb, $method_name ) ) {
-                $santized_value = call_user_func( [$this->settings_cb, $method_name], $value, $sanitize_args );
+                $santized_value = call_user_func(
+                    [$this->settings_cb, $method_name],
+                    $value,
+                    $sanitize_args,
+                    $option
+                );
             }
             // 5. Update the value in $this->cached_settings
             $this->cached_settings[$option_id] = $santized_value;
@@ -551,6 +645,17 @@ class SettingsController {
         return $this->groups;
     }
 
+    public function getOptionArgs( $option ) {
+        if ( !$this->fields ) {
+            return false;
+        }
+        $option_item = jtoc_array_find( $option, 'option_id', $this->fields );
+        if ( !$option_item ) {
+            return false;
+        }
+        return $option_item['args'] ?? false;
+    }
+
     public function exportUserSetting() {
         check_ajax_referer( JTOC()::SLUG, 'nonce' );
         $apt = sanitize_key( jtoc_isset_or_null( $_POST['active_post_type'] ) );
@@ -599,6 +704,53 @@ class SettingsController {
             'updated' => $updated,
         ] );
         die;
+    }
+
+    /**
+     * Handles the preview request
+     *
+     * This function is responsible for sanitizing the settings and creating a short-lived token for the preview.
+     * It also retrieves the post permalink and adds the necessary query arguments for the preview
+     *
+     * @return void
+     */
+    public function handlePreviewRequest() {
+        if ( !current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Unauthorized' );
+        }
+        // check_ajax_referer('jtoc_preview_nonce');
+        check_ajax_referer( JTOC()::SLUG, 'nonce' );
+        $settings = $_POST[Application::SETTINGS_V2_SLUG] ?? [];
+        if ( !is_array( $settings ) ) {
+            wp_send_json_error( 'Invalid settings' );
+        }
+        $sanitized = sanitize_option( Application::SETTINGS_V2_SLUG, $settings );
+        // Create a short-lived preview token
+        $token = wp_generate_uuid4();
+        set_transient( 'jtoc_preview_' . $token, $sanitized, 5 * MINUTE_IN_SECONDS );
+        // Get the post_id from the request
+        $post_id = (int) $_POST['post_id'];
+        // Get the post permalink
+        $post = get_post( $post_id );
+        // Check that the post exists, if not get the latest post instead
+        if ( !$post ) {
+            $post = get_posts( [
+                'post_type'   => 'post',
+                'numberposts' => 1,
+                'orderby'     => 'date',
+                'order'       => 'DESC',
+            ] );
+            $post = $post[0] ?? null;
+        }
+        //Get the post permalinlk
+        $permalink = get_permalink( $post->ID );
+        $url = add_query_arg( [
+            'joli_toc_preview' => 1,
+            'joli_toc_token'   => $token,
+        ], $permalink );
+        wp_send_json_success( [
+            'preview_url' => $url,
+        ] );
     }
 
 }
