@@ -81,6 +81,15 @@ class SettingsCallbacks
     {
         return sanitize_text_field($input);
     }
+    // Sanitize a CSS selector
+    public function sanitizeSelector($input)
+    {
+        if ( preg_match('/^[a-zA-Z0-9\-\_\.\#\s>\+\~\:\[\]\=\"]+$/', $input) ) {
+            return $input;
+        }
+
+        return null;
+    }
 
     public function sanitizeSelect($input)
     {
@@ -722,9 +731,9 @@ class SettingsCallbacks
         //     'xl' => '3em',
         // ],
 
-        if ($input == 'slower') {
-            JTOC()->log($values[$input]);
-        }
+        // if ($input == 'slower') {
+        //     JTOC()->log($values[$input]);
+        // }
         return $values[$input];
     }
 

@@ -50,7 +50,7 @@ $toc_inline_styles_str = $toc_inline_styles ? jtoc_attrify(['style' => $toc_inli
 <?php endif; ?>
 
 <?php do_action('joli_toc_before_table_of_contents', $data); ?>
-<div id="wpj-jtoc" class="wpj-jtoc wpj-jtoc--main<?php echo $in_the_content ?><?php echo $toc_wrapper_shared_classes ?><?php echo $toc_wrapper_main_classes ?><?php echo $hidden_main_toc ?>" <?php echo $toc_style ?>>
+<div id="wpj-jtoc" class="wpj-jtoc wpj-jtoc--main<?php echo $in_the_content ?><?php echo $toc_wrapper_shared_classes ?><?php echo $toc_wrapper_main_classes ?><?php echo $hidden_main_toc ?>" <?php echo $toc_style ?><?php if (! empty($content_selector)): ?> data-content-selector="<?php echo esc_attr($content_selector) ?>"<?php endif; ?>>
   <!-- TOC -->
     <?php do_action('joli_toc_before_toc', $data); ?>
     <div class="wpj-jtoc--toc wpj-jtoc--toc-inline<?php echo esc_attr($toc_classes) ?><?php echo esc_attr($is_hidden_class) ?>" <?php echo $toc_inline_styles_str ?>>

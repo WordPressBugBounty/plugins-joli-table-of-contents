@@ -494,10 +494,6 @@ class SettingsController {
         if ( $value !== null ) {
             // Check if there is a render callback
             $value_callback = jtoc_isset_or_null( $field_item['value_callback'] );
-            // if ($option_id === 'timeline_animation_duration') {
-            //     JTOC()->log($option_id . ' - ' . $value_callback);
-            //     // JTOC()->log($field_item);
-            // }
             $this->settings_cb = JTOC()->requestService( SettingsCallbacks::class );
             // Values must be "raw" in the admin screen
             if ( !is_admin() && $value_callback && method_exists( $this->settings_cb, $value_callback ) ) {

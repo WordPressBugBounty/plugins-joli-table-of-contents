@@ -86,12 +86,12 @@ class ShortcodesController
 
         //if additionnal block options
         if ($additional_options) {
-            $shortcode_defaults = array_merge($additional_options, $shortcode_defaults);
+            $shortcode_defaults = array_merge($shortcode_defaults, $additional_options);
         }
 
         // if override attr is set, let's use another shortcode's options instead from the same page
         if (isset($atts['override'])) {
-            $shortcode_defaults = array_merge(['override' => $atts['override']], $shortcode_defaults);
+            $shortcode_defaults = array_merge($shortcode_defaults, ['override' => $atts['override']]);
         }
 
         $atts = shortcode_atts(

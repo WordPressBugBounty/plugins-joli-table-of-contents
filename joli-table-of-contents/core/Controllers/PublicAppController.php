@@ -315,7 +315,8 @@ class PublicAppController {
             $toc_no_html_wrap = $parser->unwrapTOCNode( $toc );
             // If it failed to unwrap (because using v1 mode), it returns the original node
             // Check if the root element has the ID 'wpjoli-jtoc--cp-content-wrapper'
-            $has_jtoc_content_wrap_id = $toc_no_html_wrap->hasAttribute( 'id' ) && $toc_no_html_wrap->getAttribute( 'id' ) === HTMLParser::CONTENT_WRAP_HTML_ID;
+            // $has_jtoc_content_wrap_id = $toc_no_html_wrap->hasAttribute('id') && $toc_no_html_wrap->getAttribute('id') === HTMLParser::CONTENT_WRAP_HTML_ID;
+            $has_jtoc_content_wrap_id = $toc_no_html_wrap instanceof \DOMElement && $toc_no_html_wrap->hasAttribute( 'id' ) && $toc_no_html_wrap->getAttribute( 'id' ) === HTMLParser::CONTENT_WRAP_HTML_ID;
             // JTOC()->log($has_jtoc_content_wrap_id);
             // v1 way of inserting
             if ( !$has_jtoc_content_wrap_id ) {

@@ -53,7 +53,7 @@ defined('ABSPATH') or die('Wrong path bro!'); ?>
         // var_dump($block_json);
     } ?>
     <?php if (jtoc_isset_or_null($block_template)) {
-        // pre(esc_html(($block_template)));
+        // jtocpre(esc_html(($block_template)));
     } ?>
 
 

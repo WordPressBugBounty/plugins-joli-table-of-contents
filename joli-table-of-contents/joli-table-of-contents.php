@@ -7,7 +7,7 @@
  * Plugin Name: Joli Table Of Contents 
  * Plugin URI: https://wpjoli.com/joli-table-of-contents
  * Description: The most customizable & user friendly Table Of Contents for your website. Works with Gutenberg Block / Shortcode / Auto-insert. 
- * Version: 3.0.0
+ * Version: 3.0.1
  * Author: WPJoli
  * Author URI: https://wpjoli.com
  * License: GPLv2 or later
@@ -35,7 +35,9 @@ defined( 'ABSPATH' ) or die( 'Wrong path bro!' );
 // define('JTOC_FS_SETTINGS_SLUG', $settings_slug);
 // define('JTOC_HAS_V1', false);
 // define('JTOC_USE_V1', false);
-define( 'JTOC_FS_SETTINGS_SLUG', 'joli_table_of_contents_settings' );
+if ( !defined( 'JTOC_FS_SETTINGS_SLUG' ) ) {
+    define( 'JTOC_FS_SETTINGS_SLUG', 'joli_table_of_contents_settings' );
+}
 if ( function_exists( 'jtoc_xy' ) ) {
     jtoc_xy()->set_basename( false, __FILE__ );
 } else {

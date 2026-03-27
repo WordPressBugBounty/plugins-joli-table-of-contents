@@ -1,5 +1,13 @@
 == Changelog ==
 
+= 3.0.1 =
+* Added "Content selector" option
+* Added filter jtoc_base_selectors
+* Added filter jtoc_post_class
+* Improved content detection mechanism
+* Fixed PHP error when using v1 engine
+* Fixed bullet spacing bug when bullets are activated on children elements only
+
 = 3.0.0 =
 **New Features**
 * Added Onboarding Wizard for first-time setup

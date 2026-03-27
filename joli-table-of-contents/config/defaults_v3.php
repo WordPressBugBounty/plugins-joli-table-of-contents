@@ -1373,6 +1373,29 @@ return [
                 ],
             ],
 
+            // Content selector (css selector) ----------
+            [
+                'name'  => 'content-container',
+                'title' => __('Content container', 'joli-table-of-contents'),
+                'desc'  => jtoc_tagify('p', __('The content container is the element that holds the main content of your post or page. In most themes, this is something like <code>.entry-content</code>. The plugin will try to detect it automatically, but if it fails, you can specify it manually here.', 'joli-table-of-contents')),
+                'fields' => [
+
+                    [
+                        'id' => 'content-selector',
+                        'title' => __('Content selector', 'joli-table-of-contents'),
+                        'type'  => 'text',
+                        'args'  => [
+                            'custom' => jtoc_tagify('p', __('Usually not needed. The plugin automatically detects your content container. Only set this if the table of contents (especially the floating TOC) is missing or behaving incorrectly.', 'joli-table-of-contents'), ['class' => 'description']),
+                            'desc' => __('CSS selector of the element that contains your main content.', 'joli-table-of-contents'),
+                            'placeholder' => '.entry-content',
+                        ],
+                        'default' => '',
+                        'sanitize' => 'selector',
+                    ],
+                ],
+            ],
+
+
             // TOC Engine ----------
             [
                 'name' => 'toc-engine',
@@ -2829,7 +2852,7 @@ return [
 
                                 'modern-v3' => ['url' => 'https://wpjoli.com/resources/joli-table-of-contents/modern-v3.webp', 'scale' => 2],
                                 'mantis'    => ['url' => 'https://wpjoli.com/resources/joli-table-of-contents/mantis.webp', 'scale' => 2],
-                                'flowline'  => ['url' => 'https://wpjoli.com/resources/joli-table-of-contents/flowline.webp', 'scale' => 1.5], 
+                                'flowline'  => ['url' => 'https://wpjoli.com/resources/joli-table-of-contents/flowline.webp', 'scale' => 1.5],
                                 'vertik-v3' => ['url' => 'https://wpjoli.com/resources/joli-table-of-contents/vertik-v3.webp', 'scale' => 2],
                                 // 'glass'     => ['url' => 'https://wpjoli.com/resources/joli-table-of-contents/vertik.png', 'scale' => 2],
                                 // 'sequoia'   => ['url' => 'https://wpjoli.com/resources/joli-table-of-contents/vertik.png', 'scale' => 2],
@@ -3537,12 +3560,11 @@ return [
                     // __('The color palette is a new experimental feature that aims to simplify color customization for themes. At the moment, it only works with the "Vertik" theme.', 'joli-table-of-contents'),
                     ['class' => ['description']]
                 )
-                . jtoc_tagify(
-                    'p',
-                    __('If you have custom colors defined in the Styles tab, they will override the palette colors.', 'joli-table-of-contents'),
-                    ['class' => ['description', 'danger']]
-                )
-                ,
+                    . jtoc_tagify(
+                        'p',
+                        __('If you have custom colors defined in the Styles tab, they will override the palette colors.', 'joli-table-of-contents'),
+                        ['class' => ['description', 'danger']]
+                    ),
                 'fields' => [
                     [
                         'id' => 'color-palette-1',
@@ -5227,6 +5249,15 @@ return [
                             // 'new' => true, /* legacy */
                             'pro' => true,
                             'desc' => __('Use this mode if you plan to use the table of contents in a page builder such as Divi, or if you notice any visual issues with the widget. Some page builders nest content in several divs, which can prevent the floating widget from displaying properly. When active, the widget will be moved up to the root div of the article if possible. Keep this off unless needed.', 'joli-table-of-contents'),
+                            'custom' => jtoc_tagify(
+                                'p',
+                                __('Enable this if the floating table of contents is not visible, or is hidden behind an element...', 'joli-table-of-contents'),
+                                ['class' => 'description']
+                            ) . jtoc_tagify(
+                                'p',
+                                __('If the floating table of contents is still not visible with this option switched, you may need to manually set the "Content selector" option under General > Content container.', 'joli-table-of-contents'),
+                                ['class' => 'description']
+                            ),
                         ],
                         'default' => 0,
                         'sanitize' => 'checkbox',
@@ -5401,6 +5432,25 @@ return [
                         'sanitize' => 'unit',
                         // 'default' => '0',
                     ],
+
+                    // Floating offset x (mobile)
+                    [
+                        'id' => 'floating-offset-x-mobile',
+                        'title' => __('Floating horizontal offset for mobile (in pixels)', 'joli-table-of-contents'),
+                        'type' => 'unitinput',
+                        'args' => [
+                            'pro' => true,
+                            'desc' => __('If not set, the value will be the same as for Desktop', 'joli-table-of-contents'),
+                            'values' => [
+                                'px' => 'px',
+                                'em' => 'em',
+                                'rem' => 'rem',
+                            ],
+                        ],
+                        'sanitize' => 'unit',
+                        // 'default' => '0',
+                    ],
+
                     // Floating widget style: fixed and full width or fixed and auto width
                     [
                         'id' => 'floating-widget-width',
@@ -7101,6 +7151,7 @@ return [
                 'name' => 'timeline-markers',
                 'title' => __('Markers', 'joli-table-of-contents'),
                 'fields' => [
+
 
                     // H2 Marker text color
                     [

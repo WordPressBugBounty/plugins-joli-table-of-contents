@@ -3,7 +3,7 @@ Contributors: wpjoli
 Tags: table of contents, toc, navigation, gutenberg block, page contents
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -323,8 +323,8 @@ These two numbering types have been removed in v3 as they had very limited pract
 
 == Upgrade Notice ==
 
-= 2.0.0 =
-With the introduction of the version 2, Joli Table of contents benefits from a complete redesign. This new redesign brings much more flexibility in terms of styling, adds performance, gets rid of jQuery, and is correcting the flaws of the version 1. To achieve these goals, building on top of V1 was not possible, that is why the version 2 comes with some  **breaking changes**. Your custom CSS from v1 will not work anymore andd some hooks are being deprecated.
-
 = 3.0.0 =
 v3 is a major update with a redesigned admin, new themes, color palette system, onboarding wizard, and many new features. **v1 legacy support has been fully removed.** If you are still on v1, please migrate to v2 settings before upgrading to v3. See the changelog for full details.
+
+= 2.0.0 =
+With the introduction of the version 2, Joli Table of contents benefits from a complete redesign. This new redesign brings much more flexibility in terms of styling, adds performance, gets rid of jQuery, and is correcting the flaws of the version 1. To achieve these goals, building on top of V1 was not possible, that is why the version 2 comes with some  **breaking changes**. Your custom CSS from v1 will not work anymore andd some hooks are being deprecated.

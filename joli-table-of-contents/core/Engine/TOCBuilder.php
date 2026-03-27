@@ -26,6 +26,17 @@ class TOCBuilder {
     protected $theme_options_available;
 
     //Array of theme option ids available for the current theme
+    // Common selectors to find the content wrapper
+    protected $base_selectors = [
+        // ".single-post .entry-content",
+        ".entry-content",
+        ".post-content",
+        ".post-entry",
+        ".td-post-content",
+        ".mvt-content",
+        ".thecontent",
+    ];
+
     public function __construct( $headings = null, $content = null, $options = null ) {
         $this->headings = $headings;
         $this->content = $content;
@@ -314,7 +325,8 @@ class TOCBuilder {
                 'is_admin'                    => is_super_admin(),
                 'wp_widget_support'           => $widget_support,
                 'in_the_loop'                 => in_the_loop(),
-                'post_class'                  => get_post_class(),
+                'base_selectors'              => apply_filters( 'jtoc_base_selectors', $this->base_selectors ),
+                'post_class'                  => apply_filters( 'jtoc_post_class', get_post_class() ),
             ];
             $front_strings = [
                 'wp_widget_support_message' => __( 'Widget support for this post type', 'joli-table-of-contents' ) . ' (<strong>' . $post->post_type . '</strong>) ' . __( 'is currently not enabled, to make the TOC links work, please enable support in the settings under WIDGET SUPPORT > Enable widget support > Post type. This message is only visible by admins.', 'joli-table-of-contents' ),
@@ -339,6 +351,8 @@ class TOCBuilder {
         // array_push($wrapper_shared_classes, '--jtoc-notebook-style');
         // array_push($wrapper_shared_classes, '--dev');
         $reading_time = $this->getReadingTime();
+        $content_selector = $options['content_selector'] ?? null;
+        //since 3.0.1
         $data = [
             'title'                      => $tr_title,
             'show_header'                => $options['show_header'],
@@ -350,6 +364,7 @@ class TOCBuilder {
             'toggle_button_text_closed'  => $options['toggle_button_text_closed'],
             'in_the_loop'                => in_the_loop(),
             'is_in_the_content'          => $this->is_in_the_content,
+            'content_selector'           => ( $content_selector ? trim( $content_selector ) : null ),
             'css'                        => '',
             'custom_css'                 => $options['css_code'],
             'toc_styles_root'            => $this->getTOCStylesRoot(),
@@ -542,7 +557,6 @@ class TOCBuilder {
                     continue;
                 }
             }
-            JTOC()->log( $file );
             unlink( $file );
         }
     }
@@ -1680,6 +1694,7 @@ class TOCBuilder {
             }
             //Array of depth where bullets are active
             $bullets = explode( ',', $bullets_depth );
+            $min_bullets_depth = min( $bullets );
         }
         // Collapsible headings icon
         $collapse_headings_icon = null;
@@ -1765,7 +1780,7 @@ class TOCBuilder {
                     'attrs'                  => $attrs,
                     'options'                => $this->options,
                     'bullet'                 => $has_bullets && in_array( $depth, $bullets ),
-                    'bullet_filler'          => $has_bullets && !in_array( $depth, $bullets ),
+                    'bullet_filler'          => $has_bullets && !in_array( $depth, $bullets ) && $depth > $min_bullets_depth,
                     'collapsible_headings'   => $collapsible_headings,
                     'is_collapsed'           => $collapse_headings_on_load,
                     'is_collapsible'         => $is_collapsible,
