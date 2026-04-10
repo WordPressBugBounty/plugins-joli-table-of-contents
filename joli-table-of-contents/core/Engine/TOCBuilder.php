@@ -386,6 +386,9 @@ class TOCBuilder {
                 'before-headings' => 'joli_toc_before_headings',
                 'after-headings'  => 'joli_toc_after_headings',
             ];
+            if ( !isset( $hook_mapping[$reading_time_position] ) ) {
+                $reading_time_position = 'after-title';
+            }
             // Allow to change the hook by a custom hook or anothoer hook from the toc
             $reading_time_hook = apply_filters( 'joli_toc_reading_time_hook', $hook_mapping[$reading_time_position] );
             add_action( $reading_time_hook, [$this, 'addReadingTime'] );

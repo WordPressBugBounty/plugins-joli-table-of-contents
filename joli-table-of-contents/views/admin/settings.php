@@ -200,7 +200,7 @@ defined('ABSPATH') or die('Wrong path bro!'); ?>
                             <div class="joli-sidebar-item" style="border-color: var(--jtoc-color-pink); border-width: 2px; border-style: solid;">
                                 <div class="joli-gopro-notice">
                                     <!-- <?php esc_html_e('Want more cool features such as the', 'joli-table-of-contents'); ?> <strong><a target="_blank" href="<?php echo esc_url_raw($pro_url_v); ?>"><?php esc_html_e('Floating Table Of Contents Widget', 'joli-table-of-contents'); ?></strong></a> ? -->
-                                    <h3><span style="font-size: small;">Get more with</span><br>Joli Table of Contents Pro</h3>
+                                    <h3><span style="font-size: small;"><?php esc_html_e('Get more with', 'joli-table-of-contents'); ?></span><br>Joli Table of Contents Pro</h3>
                                     <ul>
                                         <?php echo implode("\n", array_map(function ($feature) {
                                             return jtoc_tagify('li', esc_html($feature));
@@ -226,7 +226,7 @@ defined('ABSPATH') or die('Wrong path bro!'); ?>
                             </div>
                         <?php endif; ?>
 
-                        <h2>Our Products</h2>
+                        <h2><?php esc_html_e('Our Products', 'joli-table-of-contents'); ?></h2>
 
                         <?php foreach ($plugins as $plugin) : ?>
                             <div class="joli-sidebar-item<?php echo isset($plugin['highlight']) ? ' --highlight' : '' ?>">

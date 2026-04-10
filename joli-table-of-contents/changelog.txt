@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.0.2 =
+* Added French translation
+* Add filter joli_toc_load_translations to allow loading translations or not
+
 = 3.0.1 =
 * Added "Content selector" option
 * Added filter jtoc_base_selectors

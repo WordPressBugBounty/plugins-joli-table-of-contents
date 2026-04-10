@@ -84,6 +84,10 @@ class SettingsCallbacks
     // Sanitize a CSS selector
     public function sanitizeSelector($input)
     {
+        if ( empty($input) ) {
+            return null;
+        }
+        
         if ( preg_match('/^[a-zA-Z0-9\-\_\.\#\s>\+\~\:\[\]\=\"]+$/', $input) ) {
             return $input;
         }

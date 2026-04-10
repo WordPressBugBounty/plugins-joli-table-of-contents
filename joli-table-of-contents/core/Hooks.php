@@ -26,10 +26,21 @@ class Hooks {
     }
 
     public function run() : void {
+        $this->loadTranslations();
         $this->registerMigrations();
         $this->registerAdminHooks();
         $this->registerPublicHooks();
         $this->registerIntegrations();
+    }
+
+    public function loadTranslations() : void {
+        add_action( 'init', function () {
+            $load_translations = apply_filters( 'joli_toc_load_translations', true );
+            if ( !$load_translations ) {
+                return;
+            }
+            load_plugin_textdomain( 'joli-table-of-contents', false, dirname( WPJOLI_JOLI_TOC_BASENAME ) . '/languages/' );
+        } );
     }
 
     private function registerAdminHooks() : void {

@@ -6464,6 +6464,7 @@ return [
                         'type' => 'slider',
                         'args' => [
                             'new' => true, /* v3 */
+                            'pro' => true,
                             // 'nullable' => true,
                             'values' => [
                                 'none' => '0px', // keep the px 
@@ -6496,6 +6497,7 @@ return [
                         'type' => 'color',
                         'args' => [
                             'new' => true, /* v3 */
+                            'pro' => true,
                             'desc' => __('Border color of the slide-out toggle button.', 'joli-table-of-contents'),
                             // 'class' => 'tab-appearance',
                             'placeholder' => '#ffffff',
