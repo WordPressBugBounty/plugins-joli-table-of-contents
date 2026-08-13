@@ -114,7 +114,8 @@ class TOCBuilder {
             } else {
                 $this->options[$option_id] = jtoc_get_option( $option_id, $options, $global_options );
             }
-            // if ($option_id === 'bullet_points_color') {
+            // if ($option_id === 'theme') {
+            // JTOC()->log(jtoc_get_option($option_id, $options, $global_options));
             // JTOC()->log($this->options[$option_id]);
             // JTOC()->log($options[$option_id]);
             // JTOC()->log($global_options[$option_id]);
@@ -231,13 +232,13 @@ class TOCBuilder {
             /** @var CustomThemes $custom_themes */
             $themes_controller = JTOC()->requestService( CustomThemes::class );
             $custom_theme = $themes_controller->getTheme( $theme_id );
-            $stylesheet_path = $custom_theme['styles'];
+            $stylesheet_url = $custom_theme['styles'];
             $function_path = $custom_theme['functions'];
             $theme_version = $custom_theme['info']['version'] ?? null;
-            if ( $stylesheet_path ) {
+            if ( $stylesheet_url ) {
                 wp_enqueue_style(
                     'wpjoli-joli-tocv2-theme-' . $theme_id,
-                    $stylesheet_path,
+                    $stylesheet_url,
                     [],
                     ( $theme_version ? $theme_version : JTOC()::VERSION )
                 );
@@ -247,10 +248,17 @@ class TOCBuilder {
             }
         } else {
             if ( $theme && $theme !== 'none' ) {
-                $stylesheet_path = JTOC()->url( 'assets/public/css/themes/' . $theme . '.css', JTOC()::USE_MINIFIED_ASSETS );
+                $stylesheet_path = $this->getThemePath( $theme );
+                // If the theme is not found, assign default theme
+                if ( !$stylesheet_path ) {
+                    // assign default theme
+                    $this->options['theme'] = 'default-v3';
+                    $theme = 'default-v3';
+                }
+                $stylesheet_url = JTOC()->url( 'assets/public/css/themes/' . $theme . '.css', JTOC()::USE_MINIFIED_ASSETS );
                 wp_enqueue_style(
                     'wpjoli-joli-tocv2-theme-' . $theme,
-                    $stylesheet_path,
+                    $stylesheet_url,
                     [],
                     JTOC()::VERSION
                 );
@@ -461,19 +469,90 @@ class TOCBuilder {
          );
     }
 
-    private function getGGIconCss( $icon ) {
-        $file_min = JTOC()->path( 'assets/public/css/icons/' . $icon . '.min.css' );
-        $file = JTOC()->path( 'assets/public/css/icons/' . $icon . '.css' );
-        if ( file_exists( $file_min ) ) {
-            return file_get_contents( $file_min );
-        } else {
-            if ( file_exists( $file ) ) {
-                return file_get_contents( $file );
-            }
+    private function getCssAsset(
+        $directory,
+        $name,
+        $returnContent = false,
+        $default = false
+    ) {
+        $min = JTOC()->path( "assets/public/css/{$directory}/{$name}.min.css" );
+        $normal = JTOC()->path( "assets/public/css/{$directory}/{$name}.css" );
+        $file = null;
+        if ( file_exists( $min ) ) {
+            $file = $min;
+        } elseif ( file_exists( $normal ) ) {
+            $file = $normal;
         }
-        return '';
+        if ( !$file ) {
+            return $default;
+        }
+        return ( $returnContent ? file_get_contents( $file ) : $file );
     }
 
+    /**
+     * Returns the file path of a CSS part file if it exists.
+     *
+     * Looks for a minified version of the file first, and if that doesn't exist, looks for a non-minified version.
+     *
+     * @since 3.0.0
+     * @param string $name
+     * @return string|false The file path of the CSS part file, or false if it doesn't exist.
+     */
+    private function getCssPartialFilePath( $name, $folder = 'parts' ) {
+        return $this->getCssAsset( $folder, $name );
+    }
+
+    private function getGGIconCss( $icon ) {
+        return $this->getCssAsset(
+            'icons',
+            $icon,
+            true,
+            ''
+        );
+    }
+
+    private function getThemePath( $theme ) {
+        return $this->getCssAsset(
+            'themes',
+            $theme,
+            false,
+            ''
+        );
+    }
+
+    //     private function getCssPartialFilePath($name, $folder = 'parts')
+    //     {
+    //         $file_min = JTOC()->path('assets/public/css/' . $folder . '/' . $name . '.min.css');
+    //         $file = JTOC()->path('assets/public/css/' . $folder . '/' . $name . '.css');
+    //         if (file_exists($file_min)) {
+    //             return $file_min;
+    //         } else if (file_exists($file)) {
+    //             return $file;
+    //         }
+    //         return false;
+    //     }
+    //     private function getGGIconCss($icon)
+    //     {
+    //         $file_min = JTOC()->path('assets/public/css/icons/' . $icon . '.min.css');
+    //         $file = JTOC()->path('assets/public/css/icons/' . $icon . '.css');
+    //         if (file_exists($file_min)) {
+    //             return file_get_contents($file_min);
+    //         } else if (file_exists($file)) {
+    //             return file_get_contents($file);
+    //         }
+    //         return '';
+    //     }
+    // private function themePath($theme)
+    // {
+    //     $stylesheet_path_min = JTOC()->path('assets/public/css/themes/' . $theme . '.min.css');
+    //     $stylesheet_path = JTOC()->path('assets/public/css/themes/' . $theme . '.css');
+    //     if (file_exists($stylesheet_path_min)) {
+    //         return $stylesheet_path_min;
+    //     } else if (file_exists($stylesheet_path)) {
+    //         return $stylesheet_path;
+    //     }
+    //     return '';
+    // }
     /**
      * Combines the required CSS parts into a single file.
      *
@@ -562,28 +641,6 @@ class TOCBuilder {
             }
             unlink( $file );
         }
-    }
-
-    /**
-     * Returns the file path of a CSS part file if it exists.
-     *
-     * Looks for a minified version of the file first, and if that doesn't exist, looks for a non-minified version.
-     *
-     * @since 3.0.0
-     * @param string $name
-     * @return string|false The file path of the CSS part file, or false if it doesn't exist.
-     */
-    private function getCssPartialFilePath( $name, $folder = 'parts' ) {
-        $file_min = JTOC()->path( 'assets/public/css/' . $folder . '/' . $name . '.min.css' );
-        $file = JTOC()->path( 'assets/public/css/' . $folder . '/' . $name . '.css' );
-        if ( file_exists( $file_min ) ) {
-            return $file_min;
-        } else {
-            if ( file_exists( $file ) ) {
-                return $file;
-            }
-        }
-        return false;
     }
 
     /**

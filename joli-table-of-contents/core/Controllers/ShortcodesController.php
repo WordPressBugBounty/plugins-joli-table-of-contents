@@ -54,11 +54,38 @@ class ShortcodesController
             'toc_is_sticky' => null,
         ];
 
-        $html = $this->joliTOCShortcode($atts);
+        $html = $this->joliTOCShortcode($atts, true); // true because from block
 
         $this->additional_options[$shortcode_index] = null;
 
         return $html;
+    }
+
+
+    /**
+     * Sanitizes the shortcode attributes passed by the user
+     *
+     * @param [array] $atts associative array of $key => $value
+     * @return array
+     */
+    private function sanitizeShortcodeAttributes($atts)
+    {
+        // Loop through and sanitize the attributes
+        foreach ($atts as $key => $value) {
+            switch ($key) {
+                case 'theme':
+                    // Only allow alphanumeric characters hyphens and underscores
+                    $atts[$key] = sanitize_key($value);
+                    break;
+                default:
+                    // If it's a string, sanitize
+                    if (is_string($value)) {
+                        $atts[$key] = sanitize_text_field($value);
+                    }
+            }
+        }
+
+        return $atts;
     }
 
     /**
@@ -66,7 +93,7 @@ class ShortcodesController
      * @param type $atts
      * @return type
      */
-    public function joliTOCShortcode($atts = [])
+    public function joliTOCShortcode($atts = [], $from_block = false)
     {
         if (!jtoc_is_front() || JTOC()->isBuildingShortcode === true) {
             return;
@@ -94,6 +121,10 @@ class ShortcodesController
             $shortcode_defaults = array_merge($shortcode_defaults, ['override' => $atts['override']]);
         }
 
+        if (!$from_block) {
+            $atts = $this->sanitizeShortcodeAttributes($atts);
+        }
+
         $atts = shortcode_atts(
             $shortcode_defaults, //default values
             $atts, //user custom attr ex :[joli-toc attr='1' attr1='asc']
@@ -112,6 +143,7 @@ class ShortcodesController
 
         // JTOC()->scope = $tocBuilder->getScope();
 
+        // JTOC()->log($tocBuilder->getOptions());
 
         if ($this->isProcessing || JTOC()->isProcessingShortcode) {
             // return str_replace('[#]', '[' . $shortcode_index . ']', JTOC()::SHORTCODE_TEMP_TAG);

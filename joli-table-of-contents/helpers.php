@@ -23,14 +23,14 @@ function JTOC()
 // add_filter('joli_toc_expand_str', function(){ return '<i class="fa fa-angle-down"></i>';});
 // add_filter('joli_toc_collapse_str', function(){ return '<i class="fa fa-times"></i>';});
 
-if (!function_exists('jtocpre')) {
-    function jtocpre($data)
-    {
-        echo '<pre>';
-        print_r($data);
-        echo '</pre>';
-    }
-}
+// if (!function_exists('jtocpre')) {
+//     function jtocpre($data)
+//     {
+//         echo '<pre>';
+//         print_r($data);
+//         echo '</pre>';
+//     }
+// }
 
 // add_action(
 //     'doing_it_wrong_run',
@@ -49,16 +49,16 @@ if (!function_exists('jtocpre')) {
  * pre only if is super admin
  * @param type $data
  */
-if (!function_exists('jtocapre')) {
-    function jtocapre($data)
-    {
-        if (is_super_admin()) {
-            echo '<pre>';
-            print_r($data);
-            echo '</pre>';
-        }
-    }
-}
+// if (!function_exists('jtocapre')) {
+//     function jtocapre($data)
+//     {
+//         if (is_super_admin()) {
+//             echo '<pre>';
+//             print_r($data);
+//             echo '</pre>';
+//         }
+//     }
+// }
 
 if (!function_exists('jtoc_pro_only')) {
     function jtoc_pro_only()

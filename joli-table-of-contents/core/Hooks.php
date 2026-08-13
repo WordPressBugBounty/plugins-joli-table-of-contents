@@ -34,11 +34,21 @@ class Hooks {
     }
 
     public function loadTranslations() : void {
+        add_filter(
+            'override_load_textdomain',
+            function ( $override, $domain ) {
+                if ( $domain === 'joli-table-of-contents' ) {
+                    $load = apply_filters( 'joli_toc_load_translations', true );
+                    if ( !$load ) {
+                        return true;
+                    }
+                }
+                return $override;
+            },
+            10,
+            2
+        );
         add_action( 'init', function () {
-            $load_translations = apply_filters( 'joli_toc_load_translations', true );
-            if ( !$load_translations ) {
-                return;
-            }
             load_plugin_textdomain( 'joli-table-of-contents', false, dirname( WPJOLI_JOLI_TOC_BASENAME ) . '/languages/' );
         } );
     }

@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.0.3 =
+* WP 7.1 compatibility
+* Security fix (thanks to Artus KG)
+
 = 3.0.2 =
 * Added French translation
 * Add filter joli_toc_load_translations to allow loading translations or not
