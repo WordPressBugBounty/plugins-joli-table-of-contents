@@ -38,7 +38,7 @@ class Blocks {
         if ( !jtoc_is_gutenberg_editor() ) {
             return;
         }
-        echo '<script>' . 'const jtoc_data_all = ' . json_encode( [
+        echo '<script>' . 'window.jtoc_data_all = ' . json_encode( [
             'settings_url' => admin_url( 'admin.php?page=' . JTOC()::SETTINGS_V2_SLUG ),
         ] ) . '</script>';
     }

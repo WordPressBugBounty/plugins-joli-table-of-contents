@@ -1,15 +1,14 @@
-=== Joli Table Of Contents ===
+=== Joli Table Of Contents – Table of Contents with Gutenberg Block & Shortcode ===
 Contributors: wpjoli
-Tags: table of contents, toc, navigation, gutenberg block, page contents
+Tags: table of contents, toc, navigation, gutenberg block, index
 Requires at least: 5.0
 Tested up to: 7.1
-Stable tag: 3.0.3
+Stable tag: 3.0.4
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-The best Table of Contents plugin for WordPress. Auto or manual insert, Gutenberg Block, beautiful themes, onboarding wizard, and deep customization.
-
+Add a table of contents to posts and pages automatically. Easy onboarding wizard, themes with dark mode, and advanced customization.
 == Description ==
 
 **Joli Table Of Contents** is the most customizable and performance-focused table of contents plugin for WordPress. It works out of the box for beginners — thanks to a built-in **Onboarding Wizard** — and offers deep control for advanced users and developers.
@@ -26,7 +25,7 @@ Easily insert a table of contents into all your posts with either the **Auto-ins
 After activation, a **step-by-step setup wizard** walks you through the most important settings — no configuration headaches, no reading documentation. You'll have a working, good-looking TOC in minutes.
 
 ### 🎨 Instant Customization with the Color Palette System
-The new **Color Palette** makes customization effortless. Set just the **Accent color** and it automatically propagates across your entire TOC — that's 90% of the visual work done in a single click. Fine-tune everything else at your own pace.
+The new **Color Palette** makes customization effortless. Set just the **Accent color** and it automatically propagates across your entire table of contents — that's 90% of the visual work done in a single click. Fine-tune everything else at your own pace.
 
 ### 🧠 Smart Heading Detection
 Joli Table Of Contents accurately detects headings from **third-party shortcodes and blocks** that don't appear directly in the editor but are rendered on the front end. Since v3, you can now choose between **Content** scope (default — prevents unwanted headings from appearing) and **Extended** scope for advanced use cases.
@@ -38,9 +37,9 @@ Use the dedicated **Gutenberg Block** to insert a table of contents anywhere in 
 No jQuery dependency. Minified CSS and JavaScript. Conditional style loading based on active settings — only the code you need is loaded. Built for fast websites.
 
 ### 🔁 Migrate from Another TOC Plugin — Without Touching Your Content
-Already using **Easy Table of Contents**, **LuckyWP Table of Contents**, or another plugin? You can switch to Joli TOC **without updating a single shortcode** across your posts.
+Already using **Easy Table of Contents**, **LuckyWP Table of Contents**, or another plugin? You can switch to Joli Table Of Contents **without updating a single shortcode** across your posts.
 
-Use the built-in filter to map Joli TOC to your existing shortcode tag:
+Use the built-in filter to map Joli Table Of Contents to your existing shortcode tag:
 
 `add_filter('jolitoc_shortcode_tag', function(){ return 'toc'; });`
 
@@ -228,11 +227,11 @@ Customize the TOC title dynamically:
 2. Go to **Plugins** in your WordPress admin and activate it.
 
 = After Activation =
-The **Onboarding Wizard** will guide you through the setup. You can also go directly to **Joli TOC** in your admin menu.
+The **Onboarding Wizard** will guide you through the setup. You can also go directly to **Joli Table Of Contents** in your admin menu.
 
 You have 3 ways to display the TOC:
 1. **Auto-insert** — go to Settings > Auto-Insert and select your post types
-2. **Gutenberg Block** — insert the Joli TOC block inside any post or page
+2. **Gutenberg Block** — insert the Joli Table Of Contents block inside any post or page
 3. **Shortcode** — add `[joli-toc]` anywhere in your content
 
 📖 [Getting Started Guide](https://wpjoli.com/docs/joli-table-of-contents/getting-started/)
@@ -245,7 +244,7 @@ You have 3 ways to display the TOC:
 The **Onboarding Wizard** will launch automatically and walk you through the key settings step by step. You can also check the [Getting Started guide](https://wpjoli.com/docs/joli-table-of-contents/getting-started/) and [How to Insert a Table of Contents](https://wpjoli.com/docs/joli-table-of-contents/inserting-a-table-of-contents/).
 
 = Can I migrate from Easy Table of Contents or LuckyWP without changing my shortcodes? =
-Yes. Use the `jolitoc_shortcode_tag` filter to map Joli TOC to your existing tag. For example, to keep using `[toc]`:
+Yes. Use the `jolitoc_shortcode_tag` filter to map Joli Table Of Contents to your existing tag. For example, to keep using `[toc]`:
 
 `add_filter('jolitoc_shortcode_tag', function(){ return 'toc'; });`
 
@@ -289,35 +288,35 @@ These two numbering types have been removed in v3 as they had very limited pract
 8. Settings Page — General
 9. Settings Page — Headings
 10. Settings Page — Theme & Colors
-11. Demo 1
-12. Demo 2
-13. Demo 3
-14. Demo 4
-15. Demo 5
-16. Demo 6
-17. Demo 7
-18. Demo 8
-19. Demo 9
-20. Demo 10
-21. Demo 11
-22. Demo 12
-23. Demo 13
-24. Demo 14
-25. Demo 15
-26. Demo 16
-27. Demo 17
-28. Demo 18
-29. Demo 19
-30. Demo 20
-31. Demo 21
-32. Demo 22
-33. Demo 23
-34. Demo 24
-35. Demo 25
-36. Demo 26
-37. Demo 27
-38. Demo 28
-39. Demo 29
+11. Default table of contents with hierarchical numbering, collapse toggle and underlined active link
+12. Rounded table of contents with the active heading highlighted
+13. Outlined table of contents with a violet accent color and highlighted active heading
+14. Table of contents with a lavender header bar and hierarchical numbering
+15. Rounded lavender table of contents with a tinted header and highlighted active heading
+16. Soft lavender outlined table of contents with an accent-colored title
+17. Green table of contents with a tinted header bar and underlined active link
+18. Rounded green table of contents with a highlighted active heading
+19. Outlined green table of contents with a matching accent-colored title and numbers
+20. Coral table of contents with numbered badges, a custom icon and an "In this article" title
+21. Rounded coral table of contents with numbered badges and a highlighted active heading
+22. Solid indigo table of contents with white text and numbered badges
+23. Rounded deep blue table of contents with badge numbering and a highlighted active heading
+24. Pink table of contents with filled number badges and an asterisk icon
+25. Dark green table of contents with filled number badges and a light title
+26. Warm peach table of contents with outlined number badges
+27. Dark mode table of contents with outlined badges and a purple active link
+28. Rounded dark mode table of contents with a highlighted active heading
+29. Dark mode table of contents with a purple accent title and icon
+30. Dark mode table of contents with classic decimal numbering and blue links
+31. Slate dark mode table of contents with compact number badges
+32. Dark mode table of contents with indigo filled number badges
+33. Yellow table of contents with outlined number badges on a light page
+34. Square-cornered yellow table of contents with a bordered toggle button
+35. Purple "Quick navigation" table of contents with number badges and a boxed toggle button
+36. Purple table of contents using Roman numeral numbering
+37. Table of contents with a reading time estimate and dash-style bullets
+38. Blue table of contents with a reading time estimate and square bullets
+39. Table of contents with an "On this page" title and a soft indigo background
 
 ---
 

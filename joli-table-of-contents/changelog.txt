@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.0.4 =
+* Changed block scripts declaration from const jtoc_data to window.jtoc_data
+* Security fix
+
 = 3.0.3 =
 * WP 7.1 compatibility
 * Security fix (thanks to Artus KG)
